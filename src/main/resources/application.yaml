@@ -1,0 +1,22 @@
+# Oracle settings
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    driver-class-name: oracle.jdbc.OracleDriver
+    db-kind: oracle
+    url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=172.21.2.10)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=NETWIN_DEV)))
+    username: NETWIN_SOL
+    password: NETWIN_SOL
+  jpa:
+    hibernate:
+      properties:
+        hibernate:
+          show_sql: true
+  server:
+    servlet:
+      context-path: /netwin-sol-ws-rest
+    error:
+      include-message: always
+      include-binding-errors: always
