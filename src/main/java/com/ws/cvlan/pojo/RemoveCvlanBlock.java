@@ -4,7 +4,7 @@ import com.ws.cvlan.enums.Status;
 import lombok.Data;
 
 @Data
-public class CvlanBlock {
+public class RemoveCvlanBlock {
     Long id;
     String message;
     Status status;

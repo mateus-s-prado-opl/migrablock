@@ -1,7 +1,7 @@
 package com.ws.cvlan.filter;
 
-import lombok.Data;
 import com.ws.cvlan.filter.validation.AtLeastOneFieldNotEmpty;
+import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 @AtLeastOneFieldNotEmpty(fields = {"stateAbbreviation", "stateName"}, message = "Either state abbreviation or state name must be filled")
 @AtLeastOneFieldNotEmpty(fields = {"localityAbbreviation", "localityName"}, message = "Either locality abbreviation or locality name must be filled")
 @AtLeastOneFieldNotEmpty(fields = {"oltName", "oltUid"}, message = "Either OLT name or OLT UID must be filled")
-public class AddCvlanBlockFilter {
+public class RemoveCvlanBlockFilter {
 
     @Size(max = 100, message = "System must be less than or equal to 100 characters")
     @NotEmpty(message = "System origin is mandatory")
@@ -20,6 +20,7 @@ public class AddCvlanBlockFilter {
     @Size(max = 50, message = "Login must be less than or equal to 100 characters")
     @NotEmpty(message = "Login is mandatory")
     private String login;
+
 
     private String stateAbbreviation;
     private String stateName;
@@ -36,13 +37,7 @@ public class AddCvlanBlockFilter {
     @NotNull(message = "OntId is mandatory")
     private Long ontId;
 
-    @NotNull(message = "Svlan is mandatory")
-    private Integer svlan;
-
-    @NotNull(message = "Cvlan is mandatory")
-    private Integer cvlan;
-
-    @Size(max = 100, message = "BlockReason must be less than or equal to 100 characters")
+    @Size(max = 100, message = "RemovalBlockReason must be less than or equal to 100 characters")
     @NotEmpty(message = "BlockReason is mandatory")
-    private String blockReason;
+    private String removalBlockReason;
 }
