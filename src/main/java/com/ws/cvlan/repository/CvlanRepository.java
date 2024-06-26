@@ -16,6 +16,7 @@ import com.ws.cvlan.sql.CvlanSql;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -49,18 +50,40 @@ public class CvlanRepository {
     }
 
 
+    @Transactional
     public AddCvlanBlock addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
-        if(!serviceExistByCvlan(addCvlanBlockFilter)){
+
+        System.out.println("Iniciando verificação da existência do serviço para o filtro fornecido...");
+        boolean serviceExists = serviceExistByCvlan(addCvlanBlockFilter);
+        System.out.println("Serviço existente: " + serviceExists);
+
+        if (!serviceExists) {
+            System.out.println("Serviço não encontrado para o filtro fornecido. Retornando erro.");
             return createErrorCvlanNotFound();
         }
 
+        MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+        String query = CvlanSql.getQueryAddCvlanBlock(addCvlanBlockFilter, sqlParameterSource);
 
-//        MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
-//        String query = CvlanSql.getQueryAddCvlanBlock(addCvlanBlockFilter, sqlParameterSource);
-//        List<Map<String, Object>> tuples = jdbcTemplate.queryForList(query, sqlParameterSource);
+        System.out.println("Query gerada para adicionar o bloqueio de CVLAN:");
+        System.out.println(query);
+        System.out.println("Parâmetros da query: " + sqlParameterSource.getValues());
 
-        return new AddCvlanBlock();
+        try {
+            System.out.println("Executando a query para bloquear o CVLAN...");
+            jdbcTemplate.update(query, sqlParameterSource);
+            System.out.println("CVLAN bloqueada com sucesso.");
 
+            AddCvlanBlock response = new AddCvlanBlock();
+            response.setStatus(Status.SUCCESS);
+            response.setMessage("CVLAN bloqueada com sucesso.");
+            return response;
+        } catch (Exception e) {
+            System.out.println("Erro ao bloquear o CVLAN:");
+            System.out.println("Mensagem de erro: " + e.getMessage());
+            e.printStackTrace(); // Imprime o stack trace para detalhes adicionais
+            return createErrorCvlanNotFound();
+        }
     }
 
     private AddCvlanBlock createErrorCvlanNotFound() {
@@ -74,7 +97,7 @@ public class CvlanRepository {
     public RemoveCvlanBlock removeCvlanBlock(RemoveCvlanBlockFilter removeCvlanBlockFilter) {
 
         MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
-        String query = CvlanSql.getQueryRemoveCvlanBlock(removeCvlanBlockFilter, sqlParameterSource);
+        //String query = CvlanSql.getQueryRemoveCvlanBlock(removeCvlanBlockFilter, sqlParameterSource);
         //List<Map<String, Object>> tuples = jdbcTemplate.queryForList(query, sqlParameterSource);
 
         return new RemoveCvlanBlock();
