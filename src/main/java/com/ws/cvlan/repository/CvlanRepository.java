@@ -101,7 +101,7 @@ public class CvlanRepository {
         AddCvlanBlock cvlanBlock = new AddCvlanBlock();
         cvlanBlock.setOperationResult(operationResult);
 
-        if(Status.SUCCESS.equals(operationResult.getStatus())){
+        if (Status.SUCCESS.equals(operationResult.getStatus())) {
             cvlanBlock.setId(1L);
         }
 

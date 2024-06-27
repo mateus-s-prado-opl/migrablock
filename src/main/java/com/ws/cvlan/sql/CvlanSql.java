@@ -26,7 +26,7 @@ public class CvlanSql {
             .append(")");
 
 
-    private static void addValues(AddCvlanBlockFilter addCvlanFilter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+    private static void addValues(AddCvlanBlockFilter addCvlanFilter, MapSqlParameterSource namedParameters) {
 
         //TODO: ServiceProvider
 
@@ -64,8 +64,8 @@ public class CvlanSql {
     }
 
     public static String getQueryAddCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {
-        StringBuilder finalQuery = new StringBuilder(queryInsertBlockedCvlan);
-        addValues(addCvlanBlockFilter, namedParameters, finalQuery);
-        return finalQuery.toString();
+        String finalQuery = String.valueOf(queryInsertBlockedCvlan);
+        addValues(addCvlanBlockFilter, namedParameters);
+        return finalQuery;
     }
 }
