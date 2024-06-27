@@ -2,33 +2,31 @@ package com.ws.cvlan.sql;
 
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CvlanSql {
 
     private static final StringBuilder queryInsertBlockedCvlan = new StringBuilder()
-            .append("INSERT INTO MIG_BLOCKED_CVLAN (\n")
-            .append("    SERVICE_PROVIDER, SVLAN_PROFILE, CVLAN, SVLAN,\n")
-            .append("    ID_OLT, OLT, ONT_ID, CTO, CTL_CIDADE, CTL_UF\n")
-            .append(") \n")
-            .append("SELECT \n")
-            .append("    'VIVO', \n")
-            .append("    'Broadband', \n")
-            .append("    :cvlan, \n")
-            .append("    :svlan, \n")
-            .append("    :oltId, \n")
-            .append("    :olt, \n")
-            .append("    :ontId, \n")
-            .append("    'TEST', \n")
-            .append("    :localityName, \n")
-            .append("    :localityAbbreviation \n")
-            .append("FROM DUAL \n")
-            .append("WHERE NOT EXISTS (\n")
-            .append("    SELECT 1 \n")
-            .append("    FROM MIG_BLOCKED_CVLAN \n")
-            .append("    WHERE CVLAN = 1 \n")
-            .append(") ");
+            .append("INSERT INTO MIG_BLOCKED_CVLAN (")
+            .append("    SERVICE_PROVIDER, SVLAN_PROFILE, CVLAN, SVLAN,")
+            .append("    ID_OLT, OLT, ONT_ID, CTO, CTL_CIDADE, CTL_UF")
+            .append(") ")
+            .append("VALUES (")
+            .append("    'API_SERVICE_PROVIDER', ")
+            .append("    'Broadband', ")
+            .append("    :cvlan, ")
+            .append("    :svlan, ")
+            .append("    :oltId, ")
+            .append("    :olt, ")
+            .append("    :ontId, ")
+            .append("    'API_MIGRABLOCK_CTO', ")
+            .append("    :localityName, ")
+            .append("    :localityAbbreviation ")
+            .append(")");
 
-    private static void addWhere(AddCvlanBlockFilter addCvlanFilter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+
+    private static void addValues(AddCvlanBlockFilter addCvlanFilter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
 
         //TODO: ServiceProvider
 
@@ -67,7 +65,7 @@ public class CvlanSql {
 
     public static String getQueryAddCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(queryInsertBlockedCvlan);
-        addWhere(addCvlanBlockFilter, namedParameters, finalQuery);
+        addValues(addCvlanBlockFilter, namedParameters, finalQuery);
         return finalQuery.toString();
     }
 }

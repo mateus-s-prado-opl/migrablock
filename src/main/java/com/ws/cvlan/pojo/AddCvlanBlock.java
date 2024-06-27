@@ -1,5 +1,6 @@
 package com.ws.cvlan.pojo;
 
+import com.ws.cvlan.enums.OperationResult ;
 import com.ws.cvlan.enums.Status;
 import lombok.Data;
 
@@ -9,9 +10,12 @@ public class AddCvlanBlock {
     String message;
     Status status;
 
-
-    public boolean hasError(){
-        return Status.ERROR.equals(status);
+    public boolean hasError() {
+        return status == Status.ERROR;
     }
 
+    public void setOperationResult(OperationResult errorType) {
+        this.status = errorType.getStatus();
+        this.message = errorType.getMessage();
+    }
 }

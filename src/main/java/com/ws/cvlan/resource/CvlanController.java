@@ -29,10 +29,4 @@ public class CvlanController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(addCvlanBlockResponse);
     }
-
-    @DeleteMapping(path = "/desbloqueio", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<RemoveCvlanBlock> removeCvlanBlock(@RequestBody @Valid RemoveCvlanBlockFilter input ){
-        RemoveCvlanBlock removeCvlanBlock = cvlanRepository.removeCvlanBlock(input);
-        return ResponseEntity.ok(removeCvlanBlock);
-    }
 }
