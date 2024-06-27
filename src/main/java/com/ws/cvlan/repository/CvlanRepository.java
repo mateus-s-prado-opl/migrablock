@@ -24,8 +24,9 @@ import java.util.Map;
 import static com.ws.cvlan.util.StringUtilSol.getLong;
 import static com.ws.cvlan.util.StringUtilSol.getString;
 
-//TODO: Ficou faltando retornar informações de auditoria quando o bloqueio ja existe e retornar o ID quando é criado
-//TODO: Trocar console.log por LOGs
+// TODO: Adicionar retorno de informações de auditoria para casos em que o bloqueio já existe
+// TODO: Retornar o ID do bloqueio recém-criado
+// TODO: Substituir console.log por chamadas para o sistema de LOG
 @Repository
 public class CvlanRepository {
 
@@ -59,7 +60,7 @@ public class CvlanRepository {
     }
 
     @Transactional
-    public AddCvlanBlock addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
+    public AddCvlanBlock  addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
 
         System.out.println("Iniciando verificação da existência do serviço para o filtro fornecido...");
         boolean serviceExists = serviceExistByCvlan(addCvlanBlockFilter);
@@ -67,7 +68,7 @@ public class CvlanRepository {
 
         if (!serviceExists) {
             System.out.println("Serviço não encontrado para o filtro fornecido. Retornando erro.");
-            return createResponse(OperationResult.CVLAN_NOT_FOUND);
+            return createResponse(OperationResult.CVLAN_NOT_FOUND, null);
         }
 
         System.out.println("Iniciando verificação se a CVLAN já está bloqueada ...");
@@ -75,7 +76,7 @@ public class CvlanRepository {
         System.out.println("Verificação de bloqueio da CVLAN: " + cvlanAlreadyBlocked);
         if (checkCvlanBlockExists(addCvlanBlockFilter)) {
             System.out.println("A CVLAN já está bloqueada.");
-            return createResponse(OperationResult.CVLAN_BLOCKED);
+            return createResponse(OperationResult.CVLAN_BLOCKED, 1L);
         }
 
         String query = CvlanSql.getQueryAddCvlanBlock(addCvlanBlockFilter, sqlParameterSource);
@@ -88,21 +89,21 @@ public class CvlanRepository {
             jdbcTemplate.update(query, sqlParameterSource);
             System.out.println("CVLAN bloqueada com sucesso.");
 
-            return createResponse(OperationResult.SUCCESS);
+            return createResponse(OperationResult.SUCCESS, 1L);
         } catch (Exception e) {
             System.out.println("Erro ao bloquear o CVLAN:");
             System.out.println("Mensagem de erro: " + e.getMessage());
             e.printStackTrace();
-            return createResponse(OperationResult.UNKNOWN_ERROR);
+            return createResponse(OperationResult.UNKNOWN_ERROR, null);
         }
     }
 
-    private AddCvlanBlock createResponse(OperationResult operationResult) {
+    private AddCvlanBlock createResponse(OperationResult operationResult, Long idCvlan) {
         AddCvlanBlock cvlanBlock = new AddCvlanBlock();
         cvlanBlock.setOperationResult(operationResult);
 
         if (Status.SUCCESS.equals(operationResult.getStatus())) {
-            cvlanBlock.setId(1L);
+            cvlanBlock.setId(idCvlan);
         }
 
         return cvlanBlock;

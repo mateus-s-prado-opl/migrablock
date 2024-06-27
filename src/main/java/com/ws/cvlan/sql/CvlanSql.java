@@ -13,24 +13,20 @@ public class CvlanSql {
             .append("    ID_OLT, OLT, ONT_ID, CTO, CTL_CIDADE, CTL_UF")
             .append(") ")
             .append("VALUES (")
-            .append("    'API_SERVICE_PROVIDER', ")
+            .append("    '', ")
             .append("    'Broadband', ")
             .append("    :cvlan, ")
             .append("    :svlan, ")
             .append("    :oltId, ")
             .append("    :olt, ")
             .append("    :ontId, ")
-            .append("    'API_MIGRABLOCK_CTO', ")
+            .append("    '', ")
             .append("    :localityName, ")
             .append("    :localityAbbreviation ")
             .append(")");
 
 
     private static void addValues(AddCvlanBlockFilter addCvlanFilter, MapSqlParameterSource namedParameters) {
-
-        //TODO: ServiceProvider
-
-        //TODO: svlanProfile
 
         if (addCvlanFilter.getCvlan() != null) {
             namedParameters.addValue("cvlan", addCvlanFilter.getCvlan());
@@ -52,7 +48,6 @@ public class CvlanSql {
             namedParameters.addValue("ontId", addCvlanFilter.getOntId());
         }
 
-        //TODO: CTO
 
         if (addCvlanFilter.getLocalityName() != null) {
             namedParameters.addValue("localityName", addCvlanFilter.getLocalityName());
