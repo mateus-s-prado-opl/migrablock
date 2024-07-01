@@ -2,12 +2,15 @@ package com.ws.cvlan.repository;
 
 import com.ws.cvlan.enums.*;
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
+import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.pojo.AddCvlanBlock;
+import com.ws.cvlan.pojo.CvlanBlocks;
 import com.ws.cvlan.pojo.DTOs.CheckCvlanBlockExistsDTO;
 import com.ws.cvlan.pojo.DTOs.CreateMessageCheckCvlanBlockExistsDTO;
-import com.ws.cvlan.sql.CVLAN.CheckCvlanBlockExists;
 import com.ws.cvlan.sql.CVLAN.AddCvlanBlockSql;
+import com.ws.cvlan.sql.CVLAN.CheckCvlanBlockExists;
 import com.ws.cvlan.sql.CVLAN.FindServiceByCvlanSql;
+import com.ws.cvlan.sql.CVLAN.ListCvlanBlocksSql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -18,10 +21,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static com.ws.cvlan.util.StringUtilSol.getLong;
 import static com.ws.cvlan.util.StringUtilSol.getString;
@@ -42,6 +42,7 @@ public class CvlanRepository {
 
     public CvlanRepository() {
     }
+
 
     public boolean serviceExistByCvlan(AddCvlanBlockFilter addCvlanBlockFilter) {
         String query = FindServiceByCvlanSql.getQueryFindServiceByCvlan(addCvlanBlockFilter, sqlParameterSource);
@@ -71,12 +72,12 @@ public class CvlanRepository {
     public AddCvlanBlock addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
 
         if (!serviceExistByCvlan(addCvlanBlockFilter)) {
-            return createResponse(OperationResult.CVLAN_NOT_FOUND, null);
+            return createResponseAddCvlanBlock(OperationResult.CVLAN_NOT_FOUND, null);
         }
 
         CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(addCvlanBlockFilter);
-        if(cvlanAlreadyBlocked.isExist()){
-            AddCvlanBlock response = createResponse(OperationResult.CVLAN_BLOCKED, cvlanAlreadyBlocked.getProcessId());
+        if (cvlanAlreadyBlocked.isExist()) {
+            AddCvlanBlock response = createResponseAddCvlanBlock(OperationResult.CVLAN_BLOCKED, cvlanAlreadyBlocked.getProcessId());
             response.setMessage(cvlanAlreadyBlocked.getMessage());
             return response;
         }
@@ -84,11 +85,11 @@ public class CvlanRepository {
         try {
             return executeCvlanBlockInsertion(addCvlanBlockFilter);
         } catch (Exception e) {
-            return createResponse(OperationResult.UNKNOWN_ERROR, null);
+            return createResponseAddCvlanBlock(OperationResult.UNKNOWN_ERROR, null);
         }
     }
 
-    private AddCvlanBlock executeCvlanBlockInsertion(AddCvlanBlockFilter addCvlanBlockFilter){
+    private AddCvlanBlock executeCvlanBlockInsertion(AddCvlanBlockFilter addCvlanBlockFilter) {
         String query = AddCvlanBlockSql.getQueryAddCvlanBlock(addCvlanBlockFilter, sqlParameterSource);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(query, sqlParameterSource, keyHolder, new String[]{"ID"});
@@ -101,10 +102,10 @@ public class CvlanRepository {
                 addCvlanBlockFilter.getBlockReason(),
                 processId
         );
-        return createResponse(OperationResult.SUCCESS, processId);
+        return createResponseAddCvlanBlock(OperationResult.SUCCESS, processId);
     }
 
-    private AddCvlanBlock createResponse(OperationResult operationResult, Long idCvlan) {
+    private AddCvlanBlock createResponseAddCvlanBlock(OperationResult operationResult, Long idCvlan) {
         AddCvlanBlock cvlanBlock = new AddCvlanBlock();
         cvlanBlock.setOperationResult(operationResult);
 
@@ -113,4 +114,16 @@ public class CvlanRepository {
         }
         return cvlanBlock;
     }
+
+
+    public List<CvlanBlocks> listCvlanBlocks(ListCvlanBlockFilter filter) {
+        String query = ListCvlanBlocksSql.getQueryListCvlanBlock(filter, sqlParameterSource);
+        List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
+
+        List<CvlanBlocks> cvlanBlocksList = new ArrayList<>();
+
+        return cvlanBlocksList;
+
+    }
+
 }
