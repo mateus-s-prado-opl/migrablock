@@ -1,4 +1,4 @@
-package com.ws.cvlan.sql;
+package com.ws.cvlan.sql.CVLAN;
 
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

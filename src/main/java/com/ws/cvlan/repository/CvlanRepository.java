@@ -1,32 +1,31 @@
 package com.ws.cvlan.repository;
 
-import com.ws.cvlan.enums.CheckCvlanBlockExistsAttr;
-import com.ws.cvlan.enums.CvlanExistStructureAttr;
-import com.ws.cvlan.enums.OperationResult;
-import com.ws.cvlan.enums.Status;
+import com.ws.cvlan.enums.*;
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.pojo.AddCvlanBlock;
 import com.ws.cvlan.pojo.DTOs.CheckCvlanBlockExistsDTO;
-import com.ws.cvlan.sql.CheckCvlanBlockExists;
-import com.ws.cvlan.sql.CvlanSql;
-import com.ws.cvlan.sql.FindServiceByCvlanSql;
+import com.ws.cvlan.pojo.DTOs.CreateMessageCheckCvlanBlockExistsDTO;
+import com.ws.cvlan.sql.CVLAN.CheckCvlanBlockExists;
+import com.ws.cvlan.sql.CVLAN.AddCvlanBlockSql;
+import com.ws.cvlan.sql.CVLAN.FindServiceByCvlanSql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.ws.cvlan.util.StringUtilSol.getLong;
 import static com.ws.cvlan.util.StringUtilSol.getString;
 
-// TODO: Adicionar retorno de informações de auditoria para casos em que o bloqueio já existe
-// TODO: Retornar o ID do bloqueio recém-criado
-// TODO: Substituir console.log por chamadas para o sistema de LOG
 @Repository
 public class CvlanRepository {
 
@@ -38,6 +37,9 @@ public class CvlanRepository {
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private AuditoriaLogRepository auditoriaLog;
+
     public CvlanRepository() {
     }
 
@@ -47,7 +49,7 @@ public class CvlanRepository {
         return !resultTuples.isEmpty() && !getString(resultTuples.get(0), CvlanExistStructureAttr.NAME).isEmpty();
     }
 
-    public boolean checkCvlanBlockExists(AddCvlanBlockFilter addCvlanBlockFilter) {
+    public CreateMessageCheckCvlanBlockExistsDTO checkCvlanBlockExists(AddCvlanBlockFilter addCvlanBlockFilter) {
         CheckCvlanBlockExistsDTO checkCvlanBlockExistsDTO = new CheckCvlanBlockExistsDTO(
                 addCvlanBlockFilter.getSvlan(),
                 addCvlanBlockFilter.getCvlan()
@@ -55,47 +57,51 @@ public class CvlanRepository {
 
         String query = CheckCvlanBlockExists.getQueryCheckCvlanBlockExists(checkCvlanBlockExistsDTO, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
-        Long status = resultTuples.isEmpty() ? 0L : getLong(resultTuples.get(0), CheckCvlanBlockExistsAttr.STATUS);
-        return !status.equals(0L);
+
+        if (!resultTuples.isEmpty()) {
+            Long id = getLong(resultTuples.get(0), CheckCvlanBlockExistsAttr.PROCESS_ID);
+            if (id != null && id != 0L) {
+                return new CreateMessageCheckCvlanBlockExistsDTO(resultTuples);
+            }
+        }
+        return new CreateMessageCheckCvlanBlockExistsDTO(Collections.emptyList());
     }
 
     @Transactional
-    public AddCvlanBlock  addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
+    public AddCvlanBlock addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
 
-        System.out.println("Iniciando verificação da existência do serviço para o filtro fornecido...");
-        boolean serviceExists = serviceExistByCvlan(addCvlanBlockFilter);
-        System.out.println("Serviço existente: " + serviceExists);
-
-        if (!serviceExists) {
-            System.out.println("Serviço não encontrado para o filtro fornecido. Retornando erro.");
+        if (!serviceExistByCvlan(addCvlanBlockFilter)) {
             return createResponse(OperationResult.CVLAN_NOT_FOUND, null);
         }
 
-        System.out.println("Iniciando verificação se a CVLAN já está bloqueada ...");
-        boolean cvlanAlreadyBlocked = checkCvlanBlockExists(addCvlanBlockFilter);
-        System.out.println("Verificação de bloqueio da CVLAN: " + cvlanAlreadyBlocked);
-        if (checkCvlanBlockExists(addCvlanBlockFilter)) {
-            System.out.println("A CVLAN já está bloqueada.");
-            return createResponse(OperationResult.CVLAN_BLOCKED, 1L);
+        CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(addCvlanBlockFilter);
+        if(cvlanAlreadyBlocked.isExist()){
+            AddCvlanBlock response = createResponse(OperationResult.CVLAN_BLOCKED, cvlanAlreadyBlocked.getProcessId());
+            response.setMessage(cvlanAlreadyBlocked.getMessage());
+            return response;
         }
-
-        String query = CvlanSql.getQueryAddCvlanBlock(addCvlanBlockFilter, sqlParameterSource);
-        System.out.println("Query gerada para adicionar o bloqueio de CVLAN:");
-        System.out.println(query);
-        System.out.println("Parâmetros da query: " + sqlParameterSource.getValues());
 
         try {
-            System.out.println("Executando a query para bloquear o CVLAN...");
-            jdbcTemplate.update(query, sqlParameterSource);
-            System.out.println("CVLAN bloqueada com sucesso.");
-
-            return createResponse(OperationResult.SUCCESS, 1L);
+            return executeCvlanBlockInsertion(addCvlanBlockFilter);
         } catch (Exception e) {
-            System.out.println("Erro ao bloquear o CVLAN:");
-            System.out.println("Mensagem de erro: " + e.getMessage());
-            e.printStackTrace();
             return createResponse(OperationResult.UNKNOWN_ERROR, null);
         }
+    }
+
+    private AddCvlanBlock executeCvlanBlockInsertion(AddCvlanBlockFilter addCvlanBlockFilter){
+        String query = AddCvlanBlockSql.getQueryAddCvlanBlock(addCvlanBlockFilter, sqlParameterSource);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(query, sqlParameterSource, keyHolder, new String[]{"ID"});
+        Long processId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+
+        auditoriaLog.insertAuditLog(
+                addCvlanBlockFilter.getLogin(),
+                addCvlanBlockFilter.getSystemOrigin(),
+                Operation.BLOCK_CVLAN,
+                addCvlanBlockFilter.getBlockReason(),
+                processId
+        );
+        return createResponse(OperationResult.SUCCESS, processId);
     }
 
     private AddCvlanBlock createResponse(OperationResult operationResult, Long idCvlan) {
@@ -105,7 +111,6 @@ public class CvlanRepository {
         if (Status.SUCCESS.equals(operationResult.getStatus())) {
             cvlanBlock.setId(idCvlan);
         }
-
         return cvlanBlock;
     }
 }

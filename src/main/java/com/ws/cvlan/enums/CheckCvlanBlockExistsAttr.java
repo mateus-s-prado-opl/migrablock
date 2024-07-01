@@ -4,9 +4,10 @@ import com.ws.cvlan.SolEnum;
 
 public enum CheckCvlanBlockExistsAttr implements SolEnum {
 
-    USER("USER"),
+    PROCESS_ID("PROCESS_ID"),
+    USER("USER_CREATED"),
     DATE_CREATED("DATE_CREATED"),
-    STATUS("STATUS");
+    COMMENTS("COMMENTS");
 
     private final String description;
 

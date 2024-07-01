@@ -1,11 +1,11 @@
-package com.ws.cvlan.sql;
+package com.ws.cvlan.sql.CVLAN;
 
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CvlanSql {
+public class AddCvlanBlockSql {
 
     private static final StringBuilder queryInsertBlockedCvlan = new StringBuilder()
             .append("INSERT INTO MIG_BLOCKED_CVLAN (")
