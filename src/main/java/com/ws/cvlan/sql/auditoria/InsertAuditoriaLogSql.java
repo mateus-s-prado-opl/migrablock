@@ -18,7 +18,6 @@ public class InsertAuditoriaLogSql {
         sqlParameterSource.addValue("dateCreated", auditoriaLog.getDateCreated());
         sqlParameterSource.addValue("operation", auditoriaLog.getOperation().getDescription());
         sqlParameterSource.addValue("system", auditoriaLog.getSystem());
-        //sqlParameterSource.addValue("status", auditoriaLog.getStatus().getValue());
         sqlParameterSource.addValue("comments", auditoriaLog.getComments());
         sqlParameterSource.addValue("processId", auditoriaLog.getProcessId());
 
