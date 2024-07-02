@@ -1,8 +1,8 @@
 package com.ws.cvlan.filter;
 
+import com.ws.cvlan.filter.validation.AtLeastOneFieldNotEmpty;
 import com.ws.cvlan.filter.validation.Filter;
 import lombok.Data;
-import com.ws.cvlan.filter.validation.AtLeastOneFieldNotEmpty;
 import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotEmpty;
