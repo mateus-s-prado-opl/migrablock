@@ -1,6 +1,6 @@
 package com.ws.cvlan.enums;
 
-public enum OperationResult  {
+public enum OperationResult {
     SUCCESS("Operation successful", Status.SUCCESS),
     CVLAN_BLOCKED("CLAN is already blocked.", Status.SUCCESS),
     CVLAN_NOT_FOUND("CVLAN not found", Status.ERROR),
@@ -9,7 +9,7 @@ public enum OperationResult  {
     private final String message;
     private final Status status;
 
-    OperationResult (String message, Status status) {
+    OperationResult(String message, Status status) {
         this.message = message;
         this.status = status;
     }
@@ -18,7 +18,7 @@ public enum OperationResult  {
         return message;
     }
 
-    public Status getStatus(){
+    public Status getStatus() {
         return status;
     }
 

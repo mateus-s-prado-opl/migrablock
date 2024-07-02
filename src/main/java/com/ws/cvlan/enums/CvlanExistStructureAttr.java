@@ -4,7 +4,7 @@ import com.ws.cvlan.SolEnum;
 
 public enum CvlanExistStructureAttr implements SolEnum {
 
-    NAME ("SERVICE_NAME");
+    NAME("SERVICE_NAME");
 
     final String fieldName;
 

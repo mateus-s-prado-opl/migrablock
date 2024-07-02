@@ -17,7 +17,7 @@ public enum ListCvlanBlockAttr implements SolEnum {
     ONT_ID("ONT_ID"),
     SVLAN("SVLAN"),
     CVLAN("CVLAN"),
-    COMMENTS("COMMENTS"), ;
+    COMMENTS("COMMENTS");
 
     private final String fieldName;
 

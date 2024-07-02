@@ -12,7 +12,7 @@ public class CheckCvlanBlockExists {
                     .append(" INNER JOIN AUDIT_LOG_MIG_BLOCK_CVLAN ALMB ON ALMB.PROCESS_ID = CB.ID  ")
                     .append(" WHERE 1=1 ");
 
-    public static String    getQueryCheckCvlanBlockExists(CheckCvlanBlockExistsDTO filter, MapSqlParameterSource namedParameters) {
+    public static String getQueryCheckCvlanBlockExists(CheckCvlanBlockExistsDTO filter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(queryCheckCvlanBlockExists);
         addWhere(filter, namedParameters, finalQuery);
         return finalQuery.toString();

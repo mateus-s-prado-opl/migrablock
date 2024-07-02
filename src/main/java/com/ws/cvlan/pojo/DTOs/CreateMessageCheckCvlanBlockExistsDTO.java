@@ -22,7 +22,7 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
 
     public CreateMessageCheckCvlanBlockExistsDTO(List<Map<String, Object>> map) {
 
-        if(!map.isEmpty()){
+        if (!map.isEmpty()) {
             this.processId = getLong(map.get(0), CheckCvlanBlockExistsAttr.PROCESS_ID);
             this.comments = getString(map.get(0), CheckCvlanBlockExistsAttr.COMMENTS);
             this.userCreated = getString(map.get(0), CheckCvlanBlockExistsAttr.USER);
@@ -39,7 +39,6 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
                 " User Created: " + userCreated +
                 " Date Created: " + dateCreated;
     }
-
 
 
 }

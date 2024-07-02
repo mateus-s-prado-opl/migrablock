@@ -25,7 +25,7 @@ public class FindServiceByCvlanSql {
                     .append("   INNER JOIN NS_RES_INS_NODE NO2 ON NO2.ID = NO.ID_NODE ")
                     .append(" WHERE 1=1 ");
 
-    public static String getQueryFindServiceByCvlan(AddCvlanBlockFilter addCvlanBlockFilter , MapSqlParameterSource namedParameters) {
+    public static String getQueryFindServiceByCvlan(AddCvlanBlockFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(queryFindServiceByCvlan);
         addWhere(addCvlanBlockFilter, namedParameters, finalQuery);
         //addOrderBy(cvlanFilter, namedParameters, finalQuery);
