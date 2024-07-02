@@ -4,9 +4,9 @@ import com.ws.cvlan.enums.*;
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.pojo.AddCvlanBlock;
-import com.ws.cvlan.pojo.CvlanBlocks;
 import com.ws.cvlan.pojo.DTOs.CheckCvlanBlockExistsDTO;
 import com.ws.cvlan.pojo.DTOs.CreateMessageCheckCvlanBlockExistsDTO;
+import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
 import com.ws.cvlan.sql.CVLAN.AddCvlanBlockSql;
 import com.ws.cvlan.sql.CVLAN.CheckCvlanBlockExists;
 import com.ws.cvlan.sql.CVLAN.FindServiceByCvlanSql;
@@ -21,7 +21,10 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.ws.cvlan.util.StringUtilSol.getLong;
 import static com.ws.cvlan.util.StringUtilSol.getString;
@@ -116,13 +119,10 @@ public class CvlanRepository {
     }
 
 
-    public List<CvlanBlocks> listCvlanBlocks(ListCvlanBlockFilter filter) {
+    public CvlanBlockListResponse getCvlanBlockList(ListCvlanBlockFilter filter) {
         String query = ListCvlanBlocksSql.getQueryListCvlanBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
-
-        List<CvlanBlocks> cvlanBlocksList = new ArrayList<>();
-
-        return cvlanBlocksList;
+        return new CvlanBlockListResponse(resultTuples);
 
     }
 

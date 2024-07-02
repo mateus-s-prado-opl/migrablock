@@ -3,6 +3,7 @@ package com.ws.cvlan.resource;
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.pojo.AddCvlanBlock;
+import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
 import com.ws.cvlan.repository.CvlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,9 +32,15 @@ public class CvlanController {
 
 
     @GetMapping("/listaBloqueios")
-    public ResponseEntity<String> a(@RequestBody @Valid ListCvlanBlockFilter input){
-        return (ResponseEntity<String>) ResponseEntity.noContent();
-    }
+    public ResponseEntity<CvlanBlockListResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
 
+        CvlanBlockListResponse cvlanBlocks = cvlanRepository.getCvlanBlockList(input);
+
+        if (cvlanBlocks.getCvlanBlockList().isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(cvlanBlocks);
+    }
 
 }

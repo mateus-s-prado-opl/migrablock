@@ -1,12 +1,11 @@
 package com.ws.cvlan.filter.validation;
 
-import com.ws.cvlan.filter.AddCvlanBlockFilter;
+import org.springframework.beans.BeanWrapperImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.springframework.beans.BeanWrapperImpl;
 
-public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtLeastOneFieldNotEmpty, AddCvlanBlockFilter> {
+public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtLeastOneFieldNotEmpty, Filter> {
 
     private String[] fields;
 
@@ -16,23 +15,21 @@ public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtL
     }
 
     @Override
-    public boolean isValid(AddCvlanBlockFilter addCvlanBlockFilter, ConstraintValidatorContext context) {
+    public boolean isValid(Filter filter, ConstraintValidatorContext context) {
         boolean isValid = false;
         for (String fieldName : fields) {
             try {
-                String fieldValue = (String) new BeanWrapperImpl(addCvlanBlockFilter).getPropertyValue(fieldName);
+                String fieldValue = (String) new BeanWrapperImpl(filter).getPropertyValue(fieldName);
                 if (fieldValue != null && !fieldValue.trim().isEmpty()) {
                     isValid = true;
                     break;
                 }
             } catch (Exception e) {
-                // Tratamento de exceção, se necessário
-                isValid = false;
+                System.out.println(e.getMessage());
             }
         }
 
         if (!isValid) {
-            // Define o contexto de validação para a mensagem personalizada
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                     .addPropertyNode(fields[0]) // Escolha um campo para associar a mensagem de erro

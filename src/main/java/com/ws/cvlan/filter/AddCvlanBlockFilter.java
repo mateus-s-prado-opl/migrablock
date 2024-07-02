@@ -1,17 +1,20 @@
 package com.ws.cvlan.filter;
 
+import com.ws.cvlan.filter.validation.Filter;
 import lombok.Data;
 import com.ws.cvlan.filter.validation.AtLeastOneFieldNotEmpty;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AtLeastOneFieldNotEmpty(fields = {"stateAbbreviation", "stateName"}, message = "Either state abbreviation or state name must be filled")
 @AtLeastOneFieldNotEmpty(fields = {"localityAbbreviation", "localityName"}, message = "Either locality abbreviation or locality name must be filled")
 @AtLeastOneFieldNotEmpty(fields = {"oltName", "oltUid"}, message = "Either OLT name or OLT UID must be filled")
-public class AddCvlanBlockFilter {
+public class AddCvlanBlockFilter extends Filter {
 
     @Size(max = 100, message = "System must be less than or equal to 100 characters")
     @NotEmpty(message = "System origin is mandatory")
