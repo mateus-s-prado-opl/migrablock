@@ -53,8 +53,8 @@ public class ListCvlanBlocksSql {
         }
 
         if (filter.getOltUid() != null) {
-            finalQuery.append(" AND CB.ID_OLT = :ID_OLT ");
-            namedParameters.addValue("ID_OLT", filter.getOltUid());
+            finalQuery.append(" AND CB.UID_OLT = :UID_OLT ");
+            namedParameters.addValue("UID_OLT", filter.getOltUid());
         }
 
         if (filter.getOntId() != null) {

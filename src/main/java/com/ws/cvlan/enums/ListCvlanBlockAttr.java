@@ -8,22 +8,16 @@ public enum ListCvlanBlockAttr implements SolEnum {
     USER_CREATED("USER_CREATED"),
     DATE_CREATED("DATE_CREATED"),
     STATE_ABBREVIATION("CTL_UF"),
+    STATE_NAME(""),
+    LOCALITY_ABBREVIATION(""),
     LOCALITY_NAME("CTL_CIDADE"),
     OLT_NAME("OLT"),
+    OLT_UID(""),
+    INTERFACE_PON(""),
     ONT_ID("ONT_ID"),
     SVLAN("SVLAN"),
     CVLAN("CVLAN"),
-    COMMENTS("COMMENTS");
-
-    //TODO: Inserir esses campos na consulta
-        //    NOME_UF("NOME_UF"),
-        //    SIGLA_LOCALIDADE("SIGLA_LOCALIDADE"),
-        //    UID_OLT("UID_OLT"),
-        //    INTERFACE_PORTA_PON("INTERFACE_PORTA_PON"),
-        //    ONT_ID_CTP_GPON("ONT_ID_CTP_GPON");
-
-
-
+    COMMENTS("COMMENTS"), ;
 
     private final String fieldName;
 

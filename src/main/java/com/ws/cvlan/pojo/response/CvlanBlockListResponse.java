@@ -9,10 +9,13 @@ import java.util.Map;
 
 @Data
 public class CvlanBlockListResponse {
+
+    private Integer totalItems;
     private List<CvlanBlock> cvlanBlockList;
 
     public CvlanBlockListResponse(List<Map<String, Object>> resultTuples) {
         this.cvlanBlockList = new ArrayList<>();
         resultTuples.forEach(block -> this.cvlanBlockList.add(new CvlanBlock(block)));
+        this.totalItems = this.cvlanBlockList.size();
     }
 }

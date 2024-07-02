@@ -88,7 +88,10 @@ public class CvlanRepository {
         try {
             return executeCvlanBlockInsertion(addCvlanBlockFilter);
         } catch (Exception e) {
-            return createResponseAddCvlanBlock(OperationResult.UNKNOWN_ERROR, null);
+            AddCvlanBlock a = createResponseAddCvlanBlock(OperationResult.UNKNOWN_ERROR, null);
+            a.setStackTrace(e.getMessage());
+
+            return a;
         }
     }
 

@@ -10,19 +10,19 @@ public class AddCvlanBlockSql {
     private static final StringBuilder queryInsertBlockedCvlan = new StringBuilder()
             .append("INSERT INTO MIG_BLOCKED_CVLAN (")
             .append("    SERVICE_PROVIDER, SVLAN_PROFILE, CVLAN, SVLAN,")
-            .append("    ID_OLT, OLT, ONT_ID, CTO, CTL_CIDADE, CTL_UF")
+            .append("    UID_OLT, OLT, ONT_ID, CTO, CTL_CIDADE, CTL_UF")
             .append(") ")
             .append("VALUES (")
             .append("    '', ")
             .append("    'Broadband', ")
             .append("    :cvlan, ")
             .append("    :svlan, ")
-            .append("    :oltId, ")
+            .append("    :oltUid, ")
             .append("    :olt, ")
             .append("    :ontId, ")
             .append("    '', ")
             .append("    :localityName, ")
-            .append("    :localityAbbreviation ")
+            .append("    :stateAbbreviation ")
             .append(")");
 
 
@@ -37,7 +37,7 @@ public class AddCvlanBlockSql {
         }
 
         if (addCvlanFilter.getOltUid() != null) {
-            namedParameters.addValue("oltId", Long.parseLong(addCvlanFilter.getOltUid()));
+            namedParameters.addValue("oltUid", addCvlanFilter.getOltUid());
         }
 
         if (addCvlanFilter.getOltName() != null) {
@@ -48,14 +48,22 @@ public class AddCvlanBlockSql {
             namedParameters.addValue("ontId", addCvlanFilter.getOntId());
         }
 
+//        if (addCvlanFilter.getLocalityAbbreviation() != null) {
+//            namedParameters.addValue("localityAbbreviation", addCvlanFilter.getLocalityAbbreviation());
+//        }
 
         if (addCvlanFilter.getLocalityName() != null) {
             namedParameters.addValue("localityName", addCvlanFilter.getLocalityName());
         }
 
-        if (addCvlanFilter.getLocalityAbbreviation() != null) {
-            namedParameters.addValue("localityAbbreviation", addCvlanFilter.getLocalityAbbreviation());
+        if (addCvlanFilter.getStateAbbreviation() != null) {
+            namedParameters.addValue("stateAbbreviation", addCvlanFilter.getStateAbbreviation());
         }
+//
+//        if (addCvlanFilter.getStateName() != null) {
+//            namedParameters.addValue("stateName", addCvlanFilter.getStateName());
+//        }
+
     }
 
     public static String getQueryAddCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {

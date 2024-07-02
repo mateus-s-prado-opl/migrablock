@@ -28,7 +28,7 @@ public class AddCvlanBlockFilter extends Filter {
     private String stateAbbreviation;
     private String stateName;
 
-    @Size(max = 2, message = "State Abbreviation must be less than or equal to 2 characters")
+    @Size(max = 5, message = "locality Abbreviation must be less than or equal to 5 characters")
     private String localityAbbreviation;
     private String localityName;
 
