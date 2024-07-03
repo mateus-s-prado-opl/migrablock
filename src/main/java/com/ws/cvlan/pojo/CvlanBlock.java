@@ -19,8 +19,8 @@ public class CvlanBlock {
     private String localityAbbreviation;
     private String localityName;
     private String oltName;
-    private Long oltUid;
-    private String interfacePon;
+    private String oltUid;
+    private String ponInterface;
     private Long ontId;
     private Long svlan;
     private Long cvlan;
@@ -36,8 +36,8 @@ public class CvlanBlock {
         this.localityName = getString(block, ListCvlanBlockAttr.LOCALITY_NAME);
         this.localityAbbreviation = getString(block, ListCvlanBlockAttr.LOCALITY_ABBREVIATION);
         this.oltName = getString(block, ListCvlanBlockAttr.OLT_NAME);
-        this.oltUid = getLong(block, ListCvlanBlockAttr.OLT_UID);
-        this.interfacePon = getString(block, ListCvlanBlockAttr.INTERFACE_PON);
+        this.oltUid = getString(block, ListCvlanBlockAttr.OLT_UID);
+        this.ponInterface = getString(block, ListCvlanBlockAttr.PON_INTERFACE);
         this.ontId = getLong(block, ListCvlanBlockAttr.ONT_ID);
         this.svlan = getLong(block, ListCvlanBlockAttr.SVLAN);
         this.cvlan = getLong(block, ListCvlanBlockAttr.CVLAN);

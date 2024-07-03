@@ -7,8 +7,11 @@ public class ListCvlanBlocksSql {
 
     private static final StringBuilder queryCheckCvlanBlockExists =
             new StringBuilder()
-                    .append(" SELECT ALMB.PROCESS_ID, ALMB.USER_CREATED, ALMB.DATE_CREATED, ALMB.COMMENTS, ")
-                    .append(" CB.CTL_UF, CB.CTL_CIDADE, CB.OLT, CB.ONT_ID, CB.SVLAN, CB.CVLAN ")
+                    .append(" SELECT ")
+                    .append("   ALMB.PROCESS_ID, ALMB.USER_CREATED, ALMB.DATE_CREATED, ALMB.COMMENTS, ")
+                    .append("   CB.UID_OLT, CB.CTL_NAME, CB.CTL_UF, CB.CTL_CIDADE, ")
+                    .append("   CB.CTL_CIDADE_SIGLA, CB.OLT, CB.ONT_ID, CB.SVLAN, ")
+                    .append("   CB.CVLAN, CB.INTERFACE_PON  ")
                     .append(" FROM MIG_BLOCKED_CVLAN CB ")
                     .append(" INNER JOIN AUDIT_LOG_MIG_BLOCK_CVLAN ALMB ON ALMB.PROCESS_ID = CB.ID  ")
                     .append(" WHERE 1=1 ");
@@ -31,20 +34,25 @@ public class ListCvlanBlocksSql {
             namedParameters.addValue("siglaUf", filter.getStateAbbreviation());
         }
 
-//        if (filter.getNomeUf() != null) {
-//            finalQuery.append(" AND CB.nome_uf = :nomeUf ");
-//            namedParameters.addValue("nomeUf", filter.getNomeUf());
-//        }
+        if (filter.getStateName() != null) {
+            finalQuery.append(" AND CB.CTL_NAME = :stateName ");
+            namedParameters.addValue("stateName", filter.getStateName());
+        }
 
-//
-//        if (filter.getLocalityAbbreviation() != null) {
-//            finalQuery.append(" AND CB.CTL_CIDADE = :siglaLocalidade ");
-//            namedParameters.addValue("siglaLocalidade", filter.getLocalityAbbreviation());
-//        }
+        if (filter.getLocalityAbbreviation() != null) {
+            finalQuery.append(" AND CB.CTL_CIDADE_SIGLA = :localityAbbreviation ");
+            namedParameters.addValue("localityAbbreviation", filter.getLocalityAbbreviation());
+        }
 
         if (filter.getLocalityName() != null) {
-            finalQuery.append(" AND CB.CTL_CIDADE = :CTL_CIDADE ");
-            namedParameters.addValue("CTL_CIDADE", filter.getLocalityName());
+            finalQuery.append(" AND CB.CTL_CIDADE = :localityName ");
+            namedParameters.addValue("localityName", filter.getLocalityName());
+        }
+
+
+        if (filter.getPonInterface() != null) {
+            finalQuery.append(" AND CB.INTERFACE_PON = :ponInterface ");
+            namedParameters.addValue("ponInterface", filter.getPonInterface());
         }
 
         if (filter.getOltName() != null) {
