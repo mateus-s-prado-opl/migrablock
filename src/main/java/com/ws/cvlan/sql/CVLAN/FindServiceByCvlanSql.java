@@ -1,6 +1,6 @@
 package com.ws.cvlan.sql.CVLAN;
 
-import com.ws.cvlan.filter.AddCvlanBlockFilter;
+import com.ws.cvlan.filter.validation.BaseCvlanFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class FindServiceByCvlanSql {
@@ -25,14 +25,13 @@ public class FindServiceByCvlanSql {
                     .append("   INNER JOIN NS_RES_INS_NODE NO2 ON NO2.ID = NO.ID_NODE ")
                     .append(" WHERE 1=1 ");
 
-    public static String getQueryFindServiceByCvlan(AddCvlanBlockFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {
+    public static String getQueryFindServiceByCvlan(BaseCvlanFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(queryFindServiceByCvlan);
         addWhere(addCvlanBlockFilter, namedParameters, finalQuery);
-        //addOrderBy(cvlanFilter, namedParameters, finalQuery);
         return finalQuery.toString();
     }
 
-    private static void addWhere(AddCvlanBlockFilter addCvlanFilter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+    private static void addWhere(BaseCvlanFilter addCvlanFilter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
 
         if (addCvlanFilter.getOntId() != null) {
             finalQuery.append("AND NO2.ID = :id_olt_ns ");

@@ -1,11 +1,7 @@
 package com.ws.cvlan.pojo;
 
-import com.ws.cvlan.enums.Status;
-import lombok.Data;
+import com.ws.cvlan.pojo.response.Response;
 
-@Data
-public class RemoveCvlanBlock {
-    Long id;
-    String message;
-    Status status;
+public class RemoveCvlanBlock extends Response {
+
 }

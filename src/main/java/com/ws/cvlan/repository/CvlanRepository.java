@@ -3,14 +3,14 @@ package com.ws.cvlan.repository;
 import com.ws.cvlan.enums.*;
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
+import com.ws.cvlan.filter.RemoveCvlanBlockFilter;
+import com.ws.cvlan.filter.validation.BaseCvlanFilter;
 import com.ws.cvlan.pojo.AddCvlanBlock;
 import com.ws.cvlan.pojo.DTOs.CheckCvlanBlockExistsDTO;
 import com.ws.cvlan.pojo.DTOs.CreateMessageCheckCvlanBlockExistsDTO;
+import com.ws.cvlan.pojo.RemoveCvlanBlock;
 import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
-import com.ws.cvlan.sql.CVLAN.AddCvlanBlockSql;
-import com.ws.cvlan.sql.CVLAN.CheckCvlanBlockExists;
-import com.ws.cvlan.sql.CVLAN.FindServiceByCvlanSql;
-import com.ws.cvlan.sql.CVLAN.ListCvlanBlocksSql;
+import com.ws.cvlan.sql.CVLAN.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -46,17 +46,16 @@ public class CvlanRepository {
     public CvlanRepository() {
     }
 
-
-    public boolean serviceExistByCvlan(AddCvlanBlockFilter addCvlanBlockFilter) {
-        String query = FindServiceByCvlanSql.getQueryFindServiceByCvlan(addCvlanBlockFilter, sqlParameterSource);
+    public boolean serviceExistByCvlan(BaseCvlanFilter baseCvlanFilter) {
+        String query = FindServiceByCvlanSql.getQueryFindServiceByCvlan(baseCvlanFilter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
         return !resultTuples.isEmpty() && !getString(resultTuples.get(0), CvlanExistStructureAttr.NAME).isEmpty();
     }
 
-    public CreateMessageCheckCvlanBlockExistsDTO checkCvlanBlockExists(AddCvlanBlockFilter addCvlanBlockFilter) {
+    public CreateMessageCheckCvlanBlockExistsDTO checkCvlanBlockExists(BaseCvlanFilter baseCvlanFilter) {
         CheckCvlanBlockExistsDTO checkCvlanBlockExistsDTO = new CheckCvlanBlockExistsDTO(
-                addCvlanBlockFilter.getSvlan(),
-                addCvlanBlockFilter.getCvlan()
+                baseCvlanFilter.getSvlan(),
+                baseCvlanFilter.getCvlan()
         );
 
         String query = CheckCvlanBlockExists.getQueryCheckCvlanBlockExists(checkCvlanBlockExistsDTO, sqlParameterSource);
@@ -121,7 +120,6 @@ public class CvlanRepository {
         return cvlanBlock;
     }
 
-
     public CvlanBlockListResponse getCvlanBlockList(ListCvlanBlockFilter filter) {
         String query = ListCvlanBlocksSql.getQueryListCvlanBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
@@ -129,4 +127,14 @@ public class CvlanRepository {
 
     }
 
+    public RemoveCvlanBlock removeCvlanBlock(RemoveCvlanBlockFilter filter) {
+
+        CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(filter);
+        if (cvlanAlreadyBlocked.isExist()) {
+            String query = RemoveCvlanBlocksSql.getQueryRemoveCvlanBlock(filter, sqlParameterSource);
+            List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
+            //return new CvlanBlockListResponse(resultTuples);
+        }
+        return null;
+    }
 }

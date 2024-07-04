@@ -5,7 +5,7 @@ import org.springframework.beans.BeanWrapperImpl;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtLeastOneFieldNotEmpty, Filter> {
+public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtLeastOneFieldNotEmpty, BaseCvlanFilter> {
 
     private String[] fields;
 
@@ -15,11 +15,11 @@ public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtL
     }
 
     @Override
-    public boolean isValid(Filter filter, ConstraintValidatorContext context) {
+    public boolean isValid(BaseCvlanFilter baseCvlanFilter, ConstraintValidatorContext context) {
         boolean isValid = false;
         for (String fieldName : fields) {
             try {
-                String fieldValue = (String) new BeanWrapperImpl(filter).getPropertyValue(fieldName);
+                String fieldValue = (String) new BeanWrapperImpl(baseCvlanFilter).getPropertyValue(fieldName);
                 if (fieldValue != null && !fieldValue.trim().isEmpty()) {
                     isValid = true;
                     break;

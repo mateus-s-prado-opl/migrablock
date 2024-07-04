@@ -2,7 +2,9 @@ package com.ws.cvlan.resource;
 
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
+import com.ws.cvlan.filter.RemoveCvlanBlockFilter;
 import com.ws.cvlan.pojo.AddCvlanBlock;
+import com.ws.cvlan.pojo.RemoveCvlanBlock;
 import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
 import com.ws.cvlan.repository.CvlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,17 @@ public class CvlanController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(addCvlanBlockResponse);
     }
+
+
+    @DeleteMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
+    public ResponseEntity<RemoveCvlanBlock> handleCvlanBlockRemovalResquest(@RequestBody @Valid RemoveCvlanBlockFilter input) {
+
+        RemoveCvlanBlock removedCvlanBlock = cvlanRepository.removeCvlanBlock(input);
+
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(removedCvlanBlock);
+    }
+
 
 
     @GetMapping("/listaBloqueios")
