@@ -32,8 +32,6 @@ import static com.ws.cvlan.util.StringUtilSol.getString;
 @Repository
 public class CvlanRepository {
 
-    private final MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
-
     @PersistenceContext
     private EntityManager em;
 
@@ -42,6 +40,9 @@ public class CvlanRepository {
 
     @Autowired
     private AuditoriaLogRepository auditoriaLog;
+
+    @Autowired
+    private MapSqlParameterSource sqlParameterSource;
 
     public CvlanRepository() {
     }
@@ -72,24 +73,26 @@ public class CvlanRepository {
 
     @Transactional
     public AddCvlanBlockResponse addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
-
-        if (!serviceExistByCvlan(addCvlanBlockFilter)) {
-            return createAddCvlanBlockResponse(OperationResult.CVLAN_NOT_FOUND, null);
-        }
-
-        CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(addCvlanBlockFilter);
-        if(cvlanAlreadyBlocked.isExist()){
-
-            if(isBlocked(cvlanAlreadyBlocked)){
-                AddCvlanBlockResponse response = createAddCvlanBlockResponse(OperationResult.CVLAN_BLOCKED, cvlanAlreadyBlocked.getProcessId());
-                response.setMessage(cvlanAlreadyBlocked.getMessage());
-                return response;
-            } else{
-                return executeCvlanBlockUpdate(addCvlanBlockFilter, cvlanAlreadyBlocked.getProcessId());
+        try {
+            if (!serviceExistByCvlan(addCvlanBlockFilter)) {
+                return createAddCvlanBlockResponse(OperationResult.CVLAN_NOT_FOUND, null);
             }
-        }
 
-        return executeCvlanBlockInsertion(addCvlanBlockFilter);
+            CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(addCvlanBlockFilter);
+            if (cvlanAlreadyBlocked.isExist()) {
+                if (isBlocked(cvlanAlreadyBlocked)) {
+                    AddCvlanBlockResponse response = createAddCvlanBlockResponse(OperationResult.CVLAN_BLOCKED, cvlanAlreadyBlocked.getProcessId());
+                    response.setMessage(cvlanAlreadyBlocked.getMessage());
+                    return response;
+                } else {
+                    return executeCvlanBlockUpdate(addCvlanBlockFilter, cvlanAlreadyBlocked.getProcessId());
+                }
+            }
+            return executeCvlanBlockInsertion(addCvlanBlockFilter);
+        } catch (Exception e) {
+            // Adicionar log detalhado para a exceção
+            return createAddCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+        }
     }
 
     private boolean isBlocked(CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked) {
@@ -146,7 +149,6 @@ public class CvlanRepository {
 
     @Transactional
     public RemoveCvlanBlockResponse executeCvlanBlockRemove(RemoveCvlanBlockFilter filter) {
-
         CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(filter);
         if (cvlanAlreadyBlocked.isExist() && isBlocked(cvlanAlreadyBlocked)) {
             String query = RemoveCvlanBlocksSql.getQueryRemoveCvlanBlock(filter, sqlParameterSource);
