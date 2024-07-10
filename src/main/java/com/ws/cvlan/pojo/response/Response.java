@@ -6,7 +6,7 @@ import com.ws.cvlan.enums.Status;
 import lombok.Data;
 
 @Data
-public class Response {
+public class Response<T> {
 
     Long id;
     String message;
@@ -14,6 +14,9 @@ public class Response {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     String stackTrace;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    T data;
 
     public boolean hasError() {
         return status == Status.ERROR;

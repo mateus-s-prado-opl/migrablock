@@ -3,8 +3,8 @@ package com.ws.cvlan.resource;
 import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.filter.RemoveCvlanBlockFilter;
-import com.ws.cvlan.pojo.AddCvlanBlock;
-import com.ws.cvlan.pojo.RemoveCvlanBlock;
+import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
+import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
 import com.ws.cvlan.repository.CvlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,8 @@ public class CvlanController {
     private CvlanRepository cvlanRepository;
 
     @PostMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<AddCvlanBlock> handleCvlanBlockRequest(@RequestBody @Valid AddCvlanBlockFilter input) {
-        AddCvlanBlock addCvlanBlockResponse = cvlanRepository.addCvlanBlock(input);
+    public ResponseEntity<AddCvlanBlockResponse> handleCvlanBlockRequest(@RequestBody @Valid AddCvlanBlockFilter input) {
+        AddCvlanBlockResponse addCvlanBlockResponse = cvlanRepository.addCvlanBlock(input);
 
         if (addCvlanBlockResponse.hasError()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(addCvlanBlockResponse);
@@ -34,25 +34,24 @@ public class CvlanController {
 
 
     @DeleteMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<RemoveCvlanBlock> handleCvlanBlockRemovalResquest(@RequestBody @Valid RemoveCvlanBlockFilter input) {
+    public ResponseEntity<RemoveCvlanBlockResponse> handleCvlanBlockRemovalResquest(@RequestBody @Valid RemoveCvlanBlockFilter input) {
+        RemoveCvlanBlockResponse removedCvlanBlock = cvlanRepository.executeCvlanBlockRemove(input);
 
-        RemoveCvlanBlock removedCvlanBlock = cvlanRepository.removeCvlanBlock(input);
+        if (removedCvlanBlock.hasError()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(removedCvlanBlock);
+        }
 
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(removedCvlanBlock);
+        return ResponseEntity.status(HttpStatus.OK).body(removedCvlanBlock);
     }
 
 
 
     @GetMapping("/listaBloqueios")
     public ResponseEntity<CvlanBlockListResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
-
         CvlanBlockListResponse cvlanBlocks = cvlanRepository.getCvlanBlockList(input);
-
         if (cvlanBlocks.getCvlanBlockList().isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-
         return ResponseEntity.ok(cvlanBlocks);
     }
 

@@ -7,15 +7,13 @@ public class RemoveCvlanBlocksSql {
 
     private static final StringBuilder queryCheckCvlanBlockExists =
             new StringBuilder()
-                    .append(" DELETE FROM MIG_BLOCKED_CVLAN CB ")
-                    .append(" WHERE ");
+                    .append(" UPDATE MIG_BLOCKED_CVLAN CB SET IS_BLOCKED = 0 ")
+                    .append(" WHERE 1=1 ");
 
     private static void addWhere(RemoveCvlanBlockFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
 
-        //TODO: verificar uma forma de utilizar o "where" sem 1=1
-
         if (filter.getSvlan() != null) {
-            finalQuery.append(" CB.svlan = :svlan ");
+            finalQuery.append(" AND CB.svlan = :svlan ");
             namedParameters.addValue("svlan", filter.getSvlan());
         }
 
@@ -58,11 +56,11 @@ public class RemoveCvlanBlocksSql {
             finalQuery.append(" AND CB.UID_OLT = :UID_OLT ");
             namedParameters.addValue("UID_OLT", filter.getOltUid());
         }
-
-        if (filter.getOntId() != null) {
-            finalQuery.append(" AND CB.ONT_ID = :ONT_ID ");
-            namedParameters.addValue("ONT_ID", filter.getOntId());
-        }
+//
+//        if (filter.getOntId() != null) {
+//            finalQuery.append(" AND CB.ONT_ID = :ONT_ID ");
+//            namedParameters.addValue("ONT_ID", filter.getOntId());
+//        }
     }
 
     public static String getQueryRemoveCvlanBlock(RemoveCvlanBlockFilter filter, MapSqlParameterSource namedParameters) {

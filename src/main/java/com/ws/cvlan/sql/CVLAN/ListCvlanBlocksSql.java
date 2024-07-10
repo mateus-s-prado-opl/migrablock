@@ -7,17 +7,22 @@ public class ListCvlanBlocksSql {
 
     private static final StringBuilder queryCheckCvlanBlockExists =
             new StringBuilder()
-                    .append(" SELECT ")
+                    .append(" SELECT DISTINCT ")
                     .append("   ALMB.PROCESS_ID, ALMB.USER_CREATED, ALMB.DATE_CREATED, ALMB.COMMENTS, ")
                     .append("   CB.UID_OLT, CB.CTL_NAME, CB.CTL_UF, CB.CTL_CIDADE, ")
                     .append("   CB.CTL_CIDADE_SIGLA, CB.OLT, CB.ONT_ID, CB.SVLAN, ")
                     .append("   CB.CVLAN, CB.INTERFACE_PON  ")
                     .append(" FROM MIG_BLOCKED_CVLAN CB ")
                     .append(" INNER JOIN AUDIT_LOG_MIG_BLOCK_CVLAN ALMB ON ALMB.PROCESS_ID = CB.ID  ")
-                    .append(" WHERE 1=1 ");
+                    .append(" WHERE CB.IS_BLOCKED = 1 ")
+                    .append("   AND ALMB.DATE_CREATED = ( ")
+                    .append("       SELECT MAX(ALMB_SUB.DATE_CREATED) ")
+                    .append("       FROM AUDIT_LOG_MIG_BLOCK_CVLAN ALMB_SUB ")
+                    .append("       WHERE ALMB_SUB.PROCESS_ID = CB.ID ")
+                    .append("   ) ");
+
 
     private static void addWhere(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
-
 
         if (filter.getSvlan() != null) {
             finalQuery.append(" AND CB.svlan = :svlan ");

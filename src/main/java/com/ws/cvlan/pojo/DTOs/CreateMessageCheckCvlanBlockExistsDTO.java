@@ -16,6 +16,7 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
     private String comments;
     private String userCreated;
     private String dateCreated;
+    private Long statusCVLAN;
 
     private boolean exist = false;
 
@@ -27,6 +28,7 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
             this.comments = getString(map.get(0), CheckCvlanBlockExistsAttr.COMMENTS);
             this.userCreated = getString(map.get(0), CheckCvlanBlockExistsAttr.USER);
             this.dateCreated = getString(map.get(0), CheckCvlanBlockExistsAttr.DATE_CREATED);
+            this.statusCVLAN = getLong(map.get(0), CheckCvlanBlockExistsAttr.IS_BLOCKED);
             this.setExist(true);
         }
 
