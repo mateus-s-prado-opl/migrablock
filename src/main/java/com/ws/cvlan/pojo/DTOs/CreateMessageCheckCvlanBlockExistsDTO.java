@@ -20,9 +20,7 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
 
     private boolean exist = false;
 
-
     public CreateMessageCheckCvlanBlockExistsDTO(List<Map<String, Object>> map) {
-
         if (!map.isEmpty()) {
             this.processId = getLong(map.get(0), CheckCvlanBlockExistsAttr.PROCESS_ID);
             this.comments = getString(map.get(0), CheckCvlanBlockExistsAttr.COMMENTS);
@@ -31,8 +29,6 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
             this.statusCVLAN = getLong(map.get(0), CheckCvlanBlockExistsAttr.IS_BLOCKED);
             this.setExist(true);
         }
-
-
     }
 
     public String getMessage() {
@@ -41,6 +37,4 @@ public class CreateMessageCheckCvlanBlockExistsDTO {
                 " User Created: " + userCreated +
                 " Date Created: " + dateCreated;
     }
-
-
 }

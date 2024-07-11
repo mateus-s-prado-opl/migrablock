@@ -4,8 +4,8 @@ import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.filter.RemoveCvlanBlockFilter;
 import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
-import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
+import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.repository.CvlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,8 +43,6 @@ public class CvlanController {
 
         return ResponseEntity.status(HttpStatus.OK).body(removedCvlanBlock);
     }
-
-
 
     @GetMapping("/listaBloqueios")
     public ResponseEntity<CvlanBlockListResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {

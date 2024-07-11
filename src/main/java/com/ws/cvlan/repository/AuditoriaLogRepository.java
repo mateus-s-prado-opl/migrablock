@@ -28,7 +28,6 @@ public class AuditoriaLogRepository {
     public AuditoriaLogRepository() {
     }
 
-
     @Transactional
     public void insertAuditLog(String login, String systemOrigin, Operation operation, String comments, Long processId) {
 

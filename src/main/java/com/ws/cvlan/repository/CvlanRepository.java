@@ -90,7 +90,6 @@ public class CvlanRepository {
             }
             return executeCvlanBlockInsertion(addCvlanBlockFilter);
         } catch (Exception e) {
-            // Adicionar log detalhado para a exceção
             return createAddCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
         }
     }

@@ -26,7 +26,6 @@ public class CvlanBlock {
     private Long cvlan;
     private String comments;
 
-
     public CvlanBlock(Map<String, Object> block) {
         this.id = getLong(block, ListCvlanBlockAttr.PROCESS_ID);
         this.userCreated = getString(block, ListCvlanBlockAttr.USER_CREATED);

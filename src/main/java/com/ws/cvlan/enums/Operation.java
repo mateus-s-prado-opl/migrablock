@@ -11,7 +11,6 @@ public enum Operation {
         this.description = description;
     }
 
-
     public String getDescription() {
         return description;
     }

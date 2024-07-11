@@ -32,7 +32,7 @@ public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtL
         if (!isValid) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
-                    .addPropertyNode(fields[0]) // Escolha um campo para associar a mensagem de erro
+                    .addPropertyNode(fields[0])
                     .addConstraintViolation();
         }
 

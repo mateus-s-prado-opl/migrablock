@@ -6,7 +6,7 @@ import com.ws.cvlan.enums.Status;
 import lombok.Data;
 
 @Data
-public class Response<T> {
+public abstract class Response<T> {
 
     Long id;
     String message;

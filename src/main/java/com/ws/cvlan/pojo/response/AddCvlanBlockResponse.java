@@ -7,5 +7,4 @@ import lombok.EqualsAndHashCode;
 @Data
 public class AddCvlanBlockResponse extends Response {
 
-
 }
