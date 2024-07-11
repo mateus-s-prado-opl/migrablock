@@ -41,8 +41,7 @@ public class CvlanRepository {
     @Autowired
     private AuditoriaLogRepository auditoriaLog;
 
-    @Autowired
-    private MapSqlParameterSource sqlParameterSource;
+    private final MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 
     public CvlanRepository() {
     }
@@ -90,7 +89,9 @@ public class CvlanRepository {
             }
             return executeCvlanBlockInsertion(addCvlanBlockFilter);
         } catch (Exception e) {
-            return createAddCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+            AddCvlanBlockResponse a = createAddCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+            a.setStackTrace(e.getMessage());
+            return a;
         }
     }
 

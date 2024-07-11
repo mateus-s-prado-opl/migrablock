@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class FindServiceByCvlanSql {
 
-    private static final StringBuilder queryFindServiceByCvlan =
+    private static final StringBuilder QUERY_FIND_SERVICE_BY_CVLAN =
             new StringBuilder()
                     .append("   SELECT MAX(SER.NAME) AS SERVICE_NAME ")
                     .append("   FROM NS_SER_INS_SERVICE SER ")
@@ -25,25 +25,25 @@ public class FindServiceByCvlanSql {
                     .append("   INNER JOIN NS_RES_INS_NODE NO2 ON NO2.ID = NO.ID_NODE ")
                     .append(" WHERE 1=1 ");
 
-    public static String getQueryFindServiceByCvlan(BaseCvlanFilter addCvlanBlockFilter, MapSqlParameterSource namedParameters) {
-        StringBuilder finalQuery = new StringBuilder(queryFindServiceByCvlan);
-        addWhere(addCvlanBlockFilter, namedParameters, finalQuery);
+    public static String getQueryFindServiceByCvlan(BaseCvlanFilter filter, MapSqlParameterSource namedParameters) {
+        StringBuilder finalQuery = new StringBuilder(QUERY_FIND_SERVICE_BY_CVLAN);
+        addWhere(filter, namedParameters, finalQuery);
         return finalQuery.toString();
     }
 
-    private static void addWhere(BaseCvlanFilter addCvlanFilter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+    private static void addWhere(BaseCvlanFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
 
-        if (addCvlanFilter.getOntId() != null) {
+        if (filter.getOntId() != null) {
             finalQuery.append("AND NO2.ID = :id_olt_ns ");
-            namedParameters.addValue("id_olt_ns", addCvlanFilter.getOntId());
+            namedParameters.addValue("id_olt_ns", filter.getOntId());
         }
-        if (addCvlanFilter.getSvlan() != null) {
+        if (filter.getSvlan() != null) {
             finalQuery.append("AND TPS.NAME = :svlan ");
-            namedParameters.addValue("svlan", addCvlanFilter.getSvlan());
+            namedParameters.addValue("svlan", filter.getSvlan());
         }
-        if (addCvlanFilter.getCvlan() != null) {
+        if (filter.getCvlan() != null) {
             finalQuery.append("AND TPS2.NAME = :cvlan ");
-            namedParameters.addValue("cvlan", addCvlanFilter.getCvlan());
+            namedParameters.addValue("cvlan", filter.getCvlan());
         }
     }
 }

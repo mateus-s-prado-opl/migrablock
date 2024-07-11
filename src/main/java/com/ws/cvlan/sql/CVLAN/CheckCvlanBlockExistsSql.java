@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class CheckCvlanBlockExistsSql {
 
-    private static final StringBuilder queryCheckCvlanBlockExists =
+    private static final StringBuilder QUERY_BASE =
             new StringBuilder()
                     .append(" SELECT ALMB.PROCESS_ID, ALMB.USER_CREATED, ALMB.DATE_CREATED, ALMB.COMMENTS, CB.IS_BLOCKED ")
                     .append(" FROM MIG_BLOCKED_CVLAN CB ")
@@ -13,7 +13,7 @@ public class CheckCvlanBlockExistsSql {
                     .append(" WHERE 1=1 ");
 
     public static String getQueryCheckCvlanBlockExists(CheckCvlanBlockExistsDTO filter, MapSqlParameterSource namedParameters) {
-        StringBuilder finalQuery = new StringBuilder(queryCheckCvlanBlockExists);
+        StringBuilder finalQuery = new StringBuilder(QUERY_BASE);
         addWhere(filter, namedParameters, finalQuery);
         return finalQuery.toString();
     }
