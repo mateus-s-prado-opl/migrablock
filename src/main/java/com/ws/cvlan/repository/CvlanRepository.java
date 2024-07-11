@@ -11,6 +11,8 @@ import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
 import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.sql.CVLAN.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -32,16 +34,14 @@ import static com.ws.cvlan.util.StringUtilSol.getString;
 @Repository
 public class CvlanRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(CvlanRepository.class);
+    private final MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
     @PersistenceContext
     private EntityManager em;
-
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
-
     @Autowired
     private AuditoriaLogRepository auditoriaLog;
-
-    private final MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
 
     public CvlanRepository() {
     }
@@ -72,26 +72,34 @@ public class CvlanRepository {
 
     @Transactional
     public AddCvlanBlockResponse addCvlanBlock(AddCvlanBlockFilter addCvlanBlockFilter) {
+        logger.info("[API-MIGRABLOCK-LOG] Starting addCvlanBlock operation for filter: {}", addCvlanBlockFilter);
         try {
             if (!serviceExistByCvlan(addCvlanBlockFilter)) {
+                logger.warn("[API-MIGRABLOCK-LOG] CVLAN not found for filter: {}", addCvlanBlockFilter);
                 return createAddCvlanBlockResponse(OperationResult.CVLAN_NOT_FOUND, null);
             }
 
             CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(addCvlanBlockFilter);
             if (cvlanAlreadyBlocked.isExist()) {
                 if (isBlocked(cvlanAlreadyBlocked)) {
+                    logger.info("[API-MIGRABLOCK-LOG] CVLAN already blocked for filter: {}", addCvlanBlockFilter);
                     AddCvlanBlockResponse response = createAddCvlanBlockResponse(OperationResult.CVLAN_BLOCKED, cvlanAlreadyBlocked.getProcessId());
                     response.setMessage(cvlanAlreadyBlocked.getMessage());
                     return response;
                 } else {
+                    logger.info("[API-MIGRABLOCK-LOG] Updating CVLAN block for filter: {}", addCvlanBlockFilter);
                     return executeCvlanBlockUpdate(addCvlanBlockFilter, cvlanAlreadyBlocked.getProcessId());
                 }
             }
+            logger.info("[API-MIGRABLOCK-LOG] Inserting new CVLAN block for filter: {}", addCvlanBlockFilter);
             return executeCvlanBlockInsertion(addCvlanBlockFilter);
         } catch (Exception e) {
-            AddCvlanBlockResponse a = createAddCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
-            a.setStackTrace(e.getMessage());
-            return a;
+            logger.error("[API-MIGRABLOCK-LOG] Error occurred during addCvlanBlock operation", e);
+            AddCvlanBlockResponse response = createAddCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+            response.setStackTrace(e.getMessage());
+            return response;
+        } finally {
+            logger.info("[API-MIGRABLOCK-LOG] Completed addCvlanBlock operation for filter: {}", addCvlanBlockFilter);
         }
     }
 
@@ -142,31 +150,44 @@ public class CvlanRepository {
     }
 
     public CvlanBlockListResponse getCvlanBlockList(ListCvlanBlockFilter filter) {
+        logger.info("[API-MIGRABLOCK-LOG] Starting getCvlanBlockList operation for filter: {}", filter);
         String query = ListCvlanBlocksSql.getQueryListCvlanBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
-        return new CvlanBlockListResponse(resultTuples);
+        CvlanBlockListResponse response = new CvlanBlockListResponse(resultTuples);
+        logger.info("[API-MIGRABLOCK-LOG] Completed getCvlanBlockList operation for filter: {}", filter);
+        return response;
     }
 
     @Transactional
     public RemoveCvlanBlockResponse executeCvlanBlockRemove(RemoveCvlanBlockFilter filter) {
-        CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(filter);
-        if (cvlanAlreadyBlocked.isExist() && isBlocked(cvlanAlreadyBlocked)) {
-            String query = RemoveCvlanBlocksSql.getQueryRemoveCvlanBlock(filter, sqlParameterSource);
+        logger.info("[API-MIGRABLOCK-LOG] Starting executeCvlanBlockRemove operation for filter: {}", filter);
+        try {
+            CreateMessageCheckCvlanBlockExistsDTO cvlanAlreadyBlocked = checkCvlanBlockExists(filter);
+            if (cvlanAlreadyBlocked.isExist() && isBlocked(cvlanAlreadyBlocked)) {
+                String query = RemoveCvlanBlocksSql.getQueryRemoveCvlanBlock(filter, sqlParameterSource);
 
-            jdbcTemplate.update(query, sqlParameterSource);
+                jdbcTemplate.update(query, sqlParameterSource);
 
-            auditoriaLog.insertAuditLog(
-                    filter.getLogin(),
-                    filter.getSystemOrigin(),
-                    Operation.UNBLOCK_CVLAN,
-                    filter.getRemoveBlockReason(),
-                    cvlanAlreadyBlocked.getProcessId()
-            );
+                auditoriaLog.insertAuditLog(
+                        filter.getLogin(),
+                        filter.getSystemOrigin(),
+                        Operation.UNBLOCK_CVLAN,
+                        filter.getRemoveBlockReason(),
+                        cvlanAlreadyBlocked.getProcessId()
+                );
 
-            return createRemoveCvlanBlockResponse(OperationResult.SUCCESS, cvlanAlreadyBlocked.getProcessId());
+                return createRemoveCvlanBlockResponse(OperationResult.SUCCESS, cvlanAlreadyBlocked.getProcessId());
+            }
+
+            return createRemoveCvlanBlockResponse(OperationResult.BLOCK_NOT_FOUND, null);
+        } catch (Exception e) {
+            logger.error("[API-MIGRABLOCK-LOG] Error occurred during executeCvlanBlockRemove operation", e);
+            RemoveCvlanBlockResponse response = createRemoveCvlanBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+            response.setStackTrace(e.getMessage());
+            return response;
+        } finally {
+            logger.info("[API-MIGRABLOCK-LOG] Completed executeCvlanBlockRemove operation for filter: {}", filter);
         }
-
-        return createRemoveCvlanBlockResponse(OperationResult.BLOCK_NOT_FOUND, null);
     }
 
     private RemoveCvlanBlockResponse createRemoveCvlanBlockResponse(OperationResult operationResult, Long idCvlan) {

@@ -36,14 +36,14 @@ public class AuditoriaLogRepository {
         );
 
         String query = InsertAuditoriaLogSql.getQueryInsertAuditoriaLog(auditoriaLog, sqlParameterSource);
-        System.out.println("Query SQL gerada para inserir o log de auditoria:");
-        System.out.println(query);
-        System.out.println("Parâmetros da query: " + sqlParameterSource.getValues());
+//        System.out.println("Query SQL gerada para inserir o log de auditoria:");
+//        System.out.println(query);
+//        System.out.println("Parâmetros da query: " + sqlParameterSource.getValues());
 
         try {
-            System.out.println("Executando a query para inserir o log de auditoria...");
+           // System.out.println("Executando a query para inserir o log de auditoria...");
             jdbcTemplate.update(query, sqlParameterSource);
-            System.out.println("Log de auditoria inserido com sucesso.");
+           // System.out.println("Log de auditoria inserido com sucesso.");
         } catch (Exception e) {
             System.out.println("Erro ao inserir o log de auditoria:");
             System.out.println("Mensagem de erro: " + e.getMessage());
