@@ -23,6 +23,8 @@ public class FindServiceByCvlanSql {
                     .append("   INNER JOIN NS_RES_INS_TP_TP TP3 ON TP3.ID_TP = TP2.ID_TP_PARENT ")
                     .append("   INNER JOIN NS_RES_INS_TP_NODE NO ON NO.ID_TP = TP3.ID_TP_PARENT ")
                     .append("   INNER JOIN NS_RES_INS_NODE NO2 ON NO2.ID = NO.ID_NODE ")
+                    .append("   INNER JOIN NS_RES_INS_NODE_MIRROR MIRROR ON NO2.ID = MIRROR.ID_NODE ")
+                    .append("   INNER JOIN ISP_INS_EQUIPAMENTO EQUIP ON MIRROR.ID_ISP = EQUIP.ID_BD_EQUIPAMENTO ")
                     .append(" WHERE 1=1 ");
 
     public static String getQueryFindServiceByCvlan(BaseCvlanFilter filter, MapSqlParameterSource namedParameters) {
@@ -34,8 +36,8 @@ public class FindServiceByCvlanSql {
     private static void addWhere(BaseCvlanFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
 
         if (filter.getOntId() != null) {
-            finalQuery.append("AND NO2.ID = :id_olt_ns ");
-            namedParameters.addValue("id_olt_ns", filter.getOntId());
+            finalQuery.append(" AND EQUIP.UNIQUE_ID = :olt_uid ");
+            namedParameters.addValue("olt_uid", filter.getOltUid());
         }
         if (filter.getSvlan() != null) {
             finalQuery.append("AND TPS.NAME = :svlan ");

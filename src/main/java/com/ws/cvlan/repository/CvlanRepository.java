@@ -127,6 +127,9 @@ public class CvlanRepository {
         jdbcTemplate.update(query, sqlParameterSource, keyHolder, new String[]{"ID"});
         Long processId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
+        query = UpdateObservationCvlanSql.getUpdateObservationQuery(addCvlanBlockFilter.getOltUid(), addCvlanBlockFilter.getBlockReason(), sqlParameterSource);
+        jdbcTemplate.update(query, sqlParameterSource);
+
         auditoriaLog.insertAuditLog(
                 addCvlanBlockFilter.getLogin(),
                 addCvlanBlockFilter.getSystemOrigin(),
@@ -180,6 +183,9 @@ public class CvlanRepository {
             if (cvlanAlreadyBlocked.isExist() && isBlocked(cvlanAlreadyBlocked)) {
                 String query = RemoveCvlanBlocksSql.getQueryRemoveCvlanBlock(cvlanAlreadyBlocked.getProcessId(), sqlParameterSource);
 
+                jdbcTemplate.update(query, sqlParameterSource);
+
+                query = UpdateObservationCvlanSql.getUpdateObservationQuery(filter.getOltUid(), filter.getRemoveBlockReason(), sqlParameterSource);
                 jdbcTemplate.update(query, sqlParameterSource);
 
                 auditoriaLog.insertAuditLog(
