@@ -1,3 +1,6 @@
+---------------------------------------------------------------------------------------------------
+-- ~~~~~~~~~~~~~~~~~~                CVLAN                                       ~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------------------------------------------------
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~ RETIRADA DOS NOT NULLS ~~~~~~~~~~~~~~~~~~~~~~~
 ALTER TABLE MIG_BLOCKED_CVLAN MODIFY (SERVICE_PROVIDER VARCHAR2(30 CHAR) NULL);
@@ -28,3 +31,30 @@ ALTER TABLE AUDIT_LOG_MIG_BLOCK_CVLAN ADD CONSTRAINT pk_audit_log_mig_block_cvla
 CREATE SEQUENCE SEQ_AUDIT_LOG_MIG_BLOCK_CVLAN start with 1 increment by 1 nocache;
 
 
+---------------------------------------------------------------------------------------------------
+-- ~~~~~~~~~~~~~~~~~~                  ONT                                       ~~~~~~~~~~~~~~~~~~
+---------------------------------------------------------------------------------------------------
+
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~ CRIANDO TABELA DE AUDITORIA ~~~~~~~~~~~~~~~~~~~~~~~
+CREATE TABLE AUDIT_LOG_MIG_BLOCK_ONT (
+    ID                      NUMBER,
+    USER_CREATED            VARCHAR2(50 CHAR)   NOT NULL,
+    DATE_CREATED            TIMESTAMP           NOT NULL,
+    STATE_ABBREVIATION      VARCHAR(2),
+    STATE_NAME              VARCHAR(50),
+    LOCALITY_ABBREVIATION   VARCHAR(5),
+    LOCALITY_NAME           VARCHAR(100),
+    OLT_NAME                VARCHAR(100),
+    OLT_UID                 VARCHAR(50),
+    PON_INTERFACE           VARCHAR(50)         NOT NULL,
+    ONT_ID                  NUMERIC             NOT NULL,
+    BLOCK_REASON            VARCHAR(100)        NOT NULL,
+    OPERATION               VARCHAR2(20 CHAR)   NOT NULL,
+    SYSTEM                  VARCHAR2(50 CHAR)   NOT NULL,
+    COMMENTS                VARCHAR2(200 CHAR)          ,
+    PROCESS_ID              NUMBER
+);
+
+ALTER TABLE AUDIT_LOG_MIG_BLOCK_ONT ADD CONSTRAINT pk_audit_log_mig_block_ont PRIMARY KEY (ID);
+CREATE SEQUENCE SEQ_AUDIT_LOG_MIG_BLOCK_ONT start with 1 increment by 1 nocache;

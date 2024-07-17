@@ -35,7 +35,7 @@ public class FindServiceByCvlanSql {
 
     private static void addWhere(BaseCvlanFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
 
-        if (filter.getOntId() != null) {
+        if (filter.getOltUid() != null) {
             finalQuery.append(" AND EQUIP.UNIQUE_ID = :olt_uid ");
             namedParameters.addValue("olt_uid", filter.getOltUid());
         }

@@ -38,9 +38,10 @@ public class OntController {
 
     @GetMapping("/listaBloqueios")
     public ResponseEntity<ListOntBlockResponse> getOntBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
-        ListOntBlockResponse cvlanBlocks = ontRepository.getCvlanBlockList(input);
-
-
-        return null;
+        ListOntBlockResponse ontBlocks = ontRepository.getCvlanBlockList(input);
+        if (ontBlocks.getOntBlockList().isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(ontBlocks);
     }
 }

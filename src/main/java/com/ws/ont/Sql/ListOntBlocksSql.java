@@ -8,13 +8,12 @@ public class ListOntBlocksSql {
     private static final StringBuilder QUERY_BASE =
             new StringBuilder()
                     .append("   SELECT ")
-                    .append("     CTP.ID AS CTP_ID, ")
-                    .append("     SERPARENT.NAME AS SERVICE_NAME, ")
-                    .append("     CTP.USER_CREATE AS USER_CREATE, ")
+                    .append("     UF.DESCRIPTION AS UF_NAME, ")
+                    .append("     UF.NAME AS UF, ")
+                    .append("     MUN.DESCRIPTION AS CIDADE, ")
+                    .append("     MUN.ABBREVIATION AS CIDADE_SIGLA, ")
                     .append("     NODE.NAME AS OLT, ")
-                    .append("     PTP.NAME AS INTERFACE_PON, ")
-                    .append("     CTP.NAME AS ONT_ID, ")
-                    .append("     SLOT.CODIFICACAO AS SLOT ")
+                    .append("     PTP.NAME AS INTERFACE_PON ")
                     .append(" FROM ")
                     .append("     NS_RES_INS_NODE NODE ")
                     .append(" JOIN NS_RES_CAT_NODE CATNODE ON CATNODE.ID_BD_CAT_NODE = NODE.ID_BD_CAT_NODE ")
@@ -33,11 +32,17 @@ public class ListOntBlocksSql {
                     .append("     AND TP1_INS_CAT.TYPE = 'CTP.GPON' ")
                     .append(" INNER JOIN NS_RES_INS_TP_MIRROR TP_MIRROR ON TP_MIRROR.ID_TP = PTP.ID ")
                     .append(" INNER JOIN ISP_INS_PORTO_FISICO PORTA ON PORTA.ID_BD_PORTO_FISICO = TP_MIRROR.ID_ISP ")
+                    .append(" INNER JOIN ISP_INS_EQUIPAMENTO EQUIP ON PORTA.ID_BD_EQUIPAMENTO = EQUIP.ID_BD_EQUIPAMENTO ")
+                    .append(" INNER JOIN LOCATION PI ON EQUIP.ID_BD_PI = PI.ID ")
+                    .append(" INNER JOIN LOCATION LOC ON PI.ID_DEFAULT_LIMIT = LOC.ID ")
+                    .append(" INNER JOIN LOCATION MUN ON LOC.ID_DEFAULT_LIMIT = MUN.ID ")
+                    .append(" INNER JOIN LOCATION UF ON MUN.ID_DEFAULT_LIMIT = UF.ID ")
                     .append(" INNER JOIN ISP_INS_SLOT SLOT ON PORTA.ID_BD_CARTA = SLOT.ID_BD_CARTA ")
                     .append(" LEFT JOIN NS_RES_INS_TP_TP TP2 ON TP2.ID_TP_PARENT = TP1.ID_TP ")
                     .append(" LEFT JOIN NS_RES_INS_PIPE_TP PITP ON PITP.ID_TP = TP2.ID_TP ")
                     .append(" LEFT JOIN NS_SER_INS_SERVICE_RESOUR SR ON SR.ID_BD_RES_PIPE = PITP.ID_PIPE ")
-                    .append(" LEFT JOIN NS_SER_INS_SERVICE SERPARENT ON SERPARENT.ID = SR.ID_BD_SERVICE");
+                    .append(" LEFT JOIN NS_SER_INS_SERVICE SERPARENT ON SERPARENT.ID = SR.ID_BD_SERVICE ")
+                    .append(" WHERE 1=1 ");
 
     public static String getQueryListOntBlock(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(QUERY_BASE);
@@ -46,7 +51,35 @@ public class ListOntBlocksSql {
     }
 
     private static void addWhere(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+        if (filter.getStateAbbreviation() != null) {
+            finalQuery.append(" AND UF.NAME = :stateAbbreviation ");
+            namedParameters.addValue("stateAbbreviation", filter.getStateAbbreviation());
+        }
 
+        if (filter.getStateName() != null) {
+            finalQuery.append(" AND UF.DESCRIPTION = :stateName ");
+            namedParameters.addValue("stateName", filter.getStateName());
+        }
+
+        if (filter.getLocalityAbbreviation() != null) {
+            finalQuery.append(" AND MUN.ABBREVIATION = :localityAbbreviation ");
+            namedParameters.addValue("localityAbbreviation", filter.getLocalityAbbreviation());
+        }
+
+        if (filter.getLocalityName() != null) {
+            finalQuery.append(" AND MUN.DESCRIPTION = :localityName ");
+            namedParameters.addValue("localityName", filter.getLocalityName());
+        }
+
+        if (filter.getPonInterface() != null) {
+            finalQuery.append(" AND PTP.NAME = :ponInterface ");
+            namedParameters.addValue("ponInterface", filter.getPonInterface());
+        }
+
+        if (filter.getOltName() != null) {
+            finalQuery.append(" AND NODE.NAME = :OLT ");
+            namedParameters.addValue("OLT", filter.getOltName());
+        }
 
     }
 }
