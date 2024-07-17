@@ -8,7 +8,7 @@ import com.ws.cvlan.filter.validation.BaseCvlanFilter;
 import com.ws.cvlan.pojo.DTOs.CheckCvlanBlockExistsDTO;
 import com.ws.cvlan.pojo.DTOs.CreateMessageCheckCvlanBlockExistsDTO;
 import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
-import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
+import com.ws.cvlan.pojo.response.ListCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.sql.CVLAN.*;
 import org.slf4j.Logger;
@@ -166,11 +166,11 @@ public class CvlanRepository {
         return response;
     }
 
-    public CvlanBlockListResponse getCvlanBlockList(ListCvlanBlockFilter filter) {
+    public ListCvlanBlockResponse getCvlanBlockList(ListCvlanBlockFilter filter) {
         logger.info("[API-MIGRABLOCK-LOG] Starting getCvlanBlockList operation for filter: {}", filter);
         String query = ListCvlanBlocksSql.getQueryListCvlanBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
-        CvlanBlockListResponse response = new CvlanBlockListResponse(resultTuples);
+        ListCvlanBlockResponse response = new ListCvlanBlockResponse(resultTuples);
         logger.info("[API-MIGRABLOCK-LOG] Completed getCvlanBlockList operation for filter: {}", filter);
         return response;
     }

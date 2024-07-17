@@ -4,7 +4,7 @@ import com.ws.cvlan.filter.AddCvlanBlockFilter;
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.filter.RemoveCvlanBlockFilter;
 import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
-import com.ws.cvlan.pojo.response.CvlanBlockListResponse;
+import com.ws.cvlan.pojo.response.ListCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.repository.CvlanRepository;
 import org.slf4j.Logger;
@@ -64,11 +64,11 @@ public class CvlanController {
     }
 
     @GetMapping("/listaBloqueios")
-    public ResponseEntity<CvlanBlockListResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
+    public ResponseEntity<ListCvlanBlockResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
         logger.info("\n\n\n[API-MIGRABLOCK-LOG] Received request to list CVLAN blocks with filter: {}", input);
         long startTime = System.currentTimeMillis();
 
-        CvlanBlockListResponse cvlanBlocks = cvlanRepository.getCvlanBlockList(input);
+        ListCvlanBlockResponse cvlanBlocks = cvlanRepository.getCvlanBlockList(input);
 
         long duration = System.currentTimeMillis() - startTime;
         logger.info("[API-MIGRABLOCK-LOG] Request completed in {} ms", duration);

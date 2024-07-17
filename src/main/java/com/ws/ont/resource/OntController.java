@@ -1,13 +1,17 @@
 package com.ws.ont.resource;
 
 
+import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.resource.CvlanController;
 import com.ws.ont.filter.AddOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.response.AddOntBlockResponse;
+import com.ws.ont.pojo.response.ListOntBlockResponse;
 import com.ws.ont.pojo.response.RemoveOntBlockResponse;
+import com.ws.ont.repository.OntRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +23,9 @@ public class OntController {
 
     private static final Logger logger = LoggerFactory.getLogger(CvlanController.class);
 
+    @Autowired
+    private OntRepository ontRepository;
+
     @PostMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<AddOntBlockResponse> handleOntBlockRequest(@RequestBody @Valid AddOntBlockFilter input) {
         return null;
@@ -29,4 +36,11 @@ public class OntController {
         return null;
     }
 
+    @GetMapping("/listaBloqueios")
+    public ResponseEntity<ListOntBlockResponse> getOntBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
+        ListOntBlockResponse cvlanBlocks = ontRepository.getCvlanBlockList(input);
+
+
+        return null;
+    }
 }
