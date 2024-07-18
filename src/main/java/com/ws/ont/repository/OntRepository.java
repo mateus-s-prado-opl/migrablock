@@ -1,8 +1,8 @@
 package com.ws.ont.repository;
 
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
-import com.ws.ont.Sql.CheckOntExistsSql;
-import com.ws.ont.Sql.ListOntBlocksSql;
+import com.ws.ont.sql.CheckOntExistsSql;
+import com.ws.ont.sql.ListOntBlocksSql;
 import com.ws.ont.enums.OntExistStructureAttr;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
