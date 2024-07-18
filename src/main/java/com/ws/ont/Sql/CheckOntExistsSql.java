@@ -1,21 +1,14 @@
 package com.ws.ont.Sql;
 
-import com.ws.cvlan.filter.ListCvlanBlockFilter;
+import com.ws.ont.filter.validation.BaseOntFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
-public class ListOntBlocksSql {
+public class CheckOntExistsSql {
 
     private static final StringBuilder QUERY_BASE =
             new StringBuilder()
                     .append("   SELECT ")
-                    .append("     UF.DESCRIPTION AS UF_NAME, ")
-                    .append("     UF.NAME AS UF, ")
-                    .append("     MUN.DESCRIPTION AS CIDADE, ")
-                    .append("     MUN.ABBREVIATION AS CIDADE_SIGLA, ")
-                    .append("     NODE.NAME AS OLT, ")
-                    .append("     CTP.NAME  AS ONT_ID, ")
-                    .append("     EQUIP.UNIQUE_ID AS UID_OLT, ")
-                    .append("     PTP.NAME AS INTERFACE_PON ")
+                    .append("     CTP.ID AS CTP_ID ")
                     .append(" FROM ")
                     .append("     NS_RES_INS_NODE NODE ")
                     .append(" JOIN NS_RES_CAT_NODE CATNODE ON CATNODE.ID_BD_CAT_NODE = NODE.ID_BD_CAT_NODE ")
@@ -46,13 +39,13 @@ public class ListOntBlocksSql {
                     .append(" LEFT JOIN NS_SER_INS_SERVICE SERPARENT ON SERPARENT.ID = SR.ID_BD_SERVICE ")
                     .append(" WHERE SERPARENT.NAME IS NULL ");
 
-    public static String getQueryListOntBlock(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters) {
+    public static String getQueryCheckOntExists(BaseOntFilter filter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(QUERY_BASE);
         addWhere(filter, namedParameters, finalQuery);
         return finalQuery.toString();
     }
 
-    private static void addWhere(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+    private static void addWhere(BaseOntFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
         if (filter.getStateAbbreviation() != null) {
             finalQuery.append(" AND UF.NAME = :stateAbbreviation ");
             namedParameters.addValue("stateAbbreviation", filter.getStateAbbreviation());
@@ -84,10 +77,9 @@ public class ListOntBlocksSql {
         }
 
 
-        if(filter.getOntId() != null){
+        if (filter.getOntId() != null) {
             finalQuery.append(" AND CTP.NAME = :ontId ");
             namedParameters.addValue("ontId", String.valueOf(filter.getOntId()));
         }
-
     }
 }

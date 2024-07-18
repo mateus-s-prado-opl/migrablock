@@ -33,6 +33,8 @@ public class OntController {
 
     @DeleteMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<RemoveOntBlockResponse> handleOntBlockRemovalRequest(@RequestBody @Valid RemoveOntBlockFilter input) {
+
+        RemoveOntBlockResponse removedOntBlock = ontRepository.executeOntBlockRemove(input);
         return null;
     }
 
