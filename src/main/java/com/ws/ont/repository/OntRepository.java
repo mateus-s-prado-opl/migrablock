@@ -1,12 +1,15 @@
 package com.ws.ont.repository;
 
 import com.ws.cvlan.filter.ListCvlanBlockFilter;
+import com.ws.cvlan.sql.CVLAN.RemoveCvlanBlocksSql;
+import com.ws.cvlan.sql.CVLAN.UpdateObservationCvlanSql;
 import com.ws.ont.sql.CheckOntExistsSql;
 import com.ws.ont.sql.ListOntBlocksSql;
 import com.ws.ont.enums.OntExistStructureAttr;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
 import com.ws.ont.pojo.response.RemoveOntBlockResponse;
+import com.ws.ont.sql.RemoveOntBlocksSql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -57,8 +60,9 @@ public class OntRepository {
         return getLong(resultTuples.get(0), OntExistStructureAttr.CTP_ID);
     }
 
-    public void removeOntBlock(Long input) {
+    public void removeOntBlock(Long id) {
 
+        RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, id);
     }
 
 
