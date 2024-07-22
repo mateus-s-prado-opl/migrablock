@@ -1,4 +1,4 @@
-package com.ws.ont.sql;
+package com.ws.ont.sql.ont;
 
 import com.ws.ont.filter.validation.BaseOntFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

@@ -1,6 +1,6 @@
-package com.ws.ont.sql;
+package com.ws.ont.sql.ont;
 
-import com.ws.cvlan.filter.ListCvlanBlockFilter;
+import com.ws.ont.filter.ListOntBlockFilter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class ListOntBlocksSql {
@@ -46,13 +46,13 @@ public class ListOntBlocksSql {
                     .append(" LEFT JOIN NS_SER_INS_SERVICE SERPARENT ON SERPARENT.ID = SR.ID_BD_SERVICE ")
                     .append(" WHERE SERPARENT.NAME IS NULL ");
 
-    public static String getQueryListOntBlock(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters) {
+    public static String getQueryListOntBlock(ListOntBlockFilter filter, MapSqlParameterSource namedParameters) {
         StringBuilder finalQuery = new StringBuilder(QUERY_BASE);
         addWhere(filter, namedParameters, finalQuery);
         return finalQuery.toString();
     }
 
-    private static void addWhere(ListCvlanBlockFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
+    private static void addWhere(ListOntBlockFilter filter, MapSqlParameterSource namedParameters, StringBuilder finalQuery) {
         if (filter.getStateAbbreviation() != null) {
             finalQuery.append(" AND UF.NAME = :stateAbbreviation ");
             namedParameters.addValue("stateAbbreviation", filter.getStateAbbreviation());
@@ -84,7 +84,7 @@ public class ListOntBlocksSql {
         }
 
 
-        if(filter.getOntId() != null){
+        if (filter.getOntId() != null) {
             finalQuery.append(" AND CTP.NAME = :ontId ");
             namedParameters.addValue("ontId", String.valueOf(filter.getOntId()));
         }

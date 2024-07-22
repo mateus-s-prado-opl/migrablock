@@ -1,9 +1,9 @@
 package com.ws.ont.resource;
 
 
-import com.ws.cvlan.filter.ListCvlanBlockFilter;
 import com.ws.cvlan.resource.CvlanController;
 import com.ws.ont.filter.AddOntBlockFilter;
+import com.ws.ont.filter.ListOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.response.AddOntBlockResponse;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
@@ -39,7 +39,7 @@ public class OntController {
     }
 
     @GetMapping("/listaBloqueios")
-    public ResponseEntity<ListOntBlockResponse> getOntBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
+    public ResponseEntity<ListOntBlockResponse> getOntBlockList(@RequestBody @Valid ListOntBlockFilter input) {
         ListOntBlockResponse ontBlocks = ontRepository.getCvlanBlockList(input);
         if (ontBlocks.getOntBlockList().isEmpty()) {
             return ResponseEntity.noContent().build();

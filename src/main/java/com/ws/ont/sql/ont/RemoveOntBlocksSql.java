@@ -1,4 +1,4 @@
-package com.ws.ont.sql;
+package com.ws.ont.sql.ont;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

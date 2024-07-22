@@ -1,15 +1,15 @@
 package com.ws.ont.repository;
 
-import com.ws.cvlan.filter.ListCvlanBlockFilter;
-import com.ws.cvlan.sql.CVLAN.RemoveCvlanBlocksSql;
-import com.ws.cvlan.sql.CVLAN.UpdateObservationCvlanSql;
-import com.ws.ont.sql.CheckOntExistsSql;
-import com.ws.ont.sql.ListOntBlocksSql;
 import com.ws.ont.enums.OntExistStructureAttr;
+import com.ws.ont.enums.Operation;
+import com.ws.ont.filter.ListOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
+import com.ws.ont.pojo.AuditoriaLogOnt;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
 import com.ws.ont.pojo.response.RemoveOntBlockResponse;
-import com.ws.ont.sql.RemoveOntBlocksSql;
+import com.ws.ont.sql.ont.CheckOntExistsSql;
+import com.ws.ont.sql.ont.ListOntBlocksSql;
+import com.ws.ont.sql.ont.RemoveOntBlocksSql;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -30,24 +30,30 @@ public class OntRepository {
     private EntityManager em;
     @Autowired
     private NamedParameterJdbcTemplate jdbcTemplate;
+    @Autowired
+    private AuditoriaLogOntRepository auditoriaLog;
 
-    public ListOntBlockResponse getCvlanBlockList(ListCvlanBlockFilter filter) {
+    public ListOntBlockResponse getCvlanBlockList(ListOntBlockFilter filter) {
         String query = ListOntBlocksSql.getQueryListOntBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
         ListOntBlockResponse response = new ListOntBlockResponse(resultTuples);
         return response;
     }
 
-    public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter input)  {
+    public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
 
-       Long id = checkOntBlockExists(input);
+        Long id = checkOntBlockExists(filter);
 
-        if (id==null) {
+        if (id == null) {
             System.out.println("Não existe esse mano");
 
         }
 
-        removeOntBlock(id);
+        // removeOntBlock(id);
+
+        //update no campo de observação da ONT
+
+        auditoriaLog.insertAuditLog(new AuditoriaLogOnt(filter, filter.getLogin(), filter.getSystemOrigin(), filter.getRemoveBlockReason(), Operation.UNBLOCK_ONT));
 
         return null;
 
