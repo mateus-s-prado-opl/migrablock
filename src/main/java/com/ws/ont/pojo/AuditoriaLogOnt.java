@@ -28,8 +28,9 @@ public class AuditoriaLogOnt {
     private String comments;
     private Operation operation;
     private String system;
+    private Long idProcess;
 
-    public AuditoriaLogOnt(BaseOntFilter filter, String login, String system, String comments, Operation operation) {
+    public AuditoriaLogOnt(BaseOntFilter filter, String login, String system, String comments, Operation operation, Long id) {
         this.userCreated = login;
         this.dateCreated = new Date();
         this.stateAbbreviation = filter.getStateAbbreviation();
@@ -43,5 +44,6 @@ public class AuditoriaLogOnt {
         this.comments = comments;
         this.operation = operation;
         this.system = system;
+        this.idProcess = id;
     }
 }

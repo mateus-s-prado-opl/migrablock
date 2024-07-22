@@ -10,6 +10,8 @@ import com.ws.ont.pojo.response.RemoveOntBlockResponse;
 import com.ws.ont.sql.ont.CheckOntExistsSql;
 import com.ws.ont.sql.ont.ListOntBlocksSql;
 import com.ws.ont.sql.ont.RemoveOntBlocksSql;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -42,18 +44,24 @@ public class OntRepository {
 
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
 
+        Logger logger = LoggerFactory.getLogger(getClass());
+
         Long id = checkOntBlockExists(filter);
 
         if (id == null) {
-            System.out.println("Não existe esse mano");
-
+            logger.warn("ONT block not found for the given filter: {}", filter);
+            throw new IllegalArgumentException("ONT block does not exist for the provided filter.");
         }
 
-        // removeOntBlock(id);
+        // Perform the removal of the ONT block
+        //removeOntBlock(id);
 
-        //update no campo de observação da ONT
+        // Update the observation field of the ONT (you can add the update logic here)
 
-        auditoriaLog.insertAuditLog(new AuditoriaLogOnt(filter, filter.getLogin(), filter.getSystemOrigin(), filter.getRemoveBlockReason(), Operation.UNBLOCK_ONT));
+        // Insert audit log
+        AuditoriaLogOnt auditLog = createAuditLog(filter, id);
+        auditoriaLog.insertAuditLog(auditLog);
+
 
         return null;
 
@@ -69,6 +77,18 @@ public class OntRepository {
     public void removeOntBlock(Long id) {
 
         RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, id);
+    }
+
+
+    private AuditoriaLogOnt createAuditLog(RemoveOntBlockFilter filter, Long id) {
+        return new AuditoriaLogOnt(
+                filter,
+                filter.getLogin(),
+                filter.getSystemOrigin(),
+                filter.getRemoveBlockReason(),
+                Operation.UNBLOCK_ONT,
+                id
+        );
     }
 
 

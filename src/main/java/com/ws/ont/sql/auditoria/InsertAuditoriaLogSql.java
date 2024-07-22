@@ -9,11 +9,11 @@ public class InsertAuditoriaLogSql {
             "INSERT INTO AUDIT_LOG_MIG_BLOCK_ONT (" +
                     "ID, USER_CREATED, DATE_CREATED, STATE_ABBREVIATION, STATE_NAME, " +
                     "LOCALITY_ABBREVIATION, LOCALITY_NAME, OLT_NAME, OLT_UID, " +
-                    "PON_INTERFACE, ONT_ID, OPERATION, SYSTEM, COMMENTS" +
+                    "PON_INTERFACE, ONT_ID, OPERATION, SYSTEM, COMMENTS, PROCESS_ID" +
                     ") VALUES (" +
                     "SEQ_AUDIT_LOG_MIG_BLOCK_CVLAN.nextval, :userCreated, :dateCreated, :stateAbbreviation, :stateName, " +
                     ":localityAbbreviation, :localityName, :oltName, :oltUid, " +
-                    ":ponInterface, :ontId, :operation, :system, :comments )";
+                    ":ponInterface, :ontId, :operation, :system, :comments, :processId )";
 
     public static String getQueryInsertAuditoriaLog(AuditoriaLogOnt auditoriaLogOnt, MapSqlParameterSource sqlParameterSource) {
         sqlParameterSource.addValue("userCreated", auditoriaLogOnt.getUserCreated());
@@ -29,6 +29,8 @@ public class InsertAuditoriaLogSql {
         sqlParameterSource.addValue("operation", auditoriaLogOnt.getOperation().getDescription());
         sqlParameterSource.addValue("system", auditoriaLogOnt.getSystem());
         sqlParameterSource.addValue("comments", auditoriaLogOnt.getComments());
+        sqlParameterSource.addValue("processId", auditoriaLogOnt.getIdProcess());
+
 
         return QUERY_INSERT_AUDITORIA_LOG;
     }
