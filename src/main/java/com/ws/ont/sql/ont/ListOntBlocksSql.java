@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 public class ListOntBlocksSql {
 
+    //TODO: Verificar erro que esta dando de duplicidade de dados
     private static final StringBuilder QUERY_BASE =
             new StringBuilder()
                     .append("   SELECT ")

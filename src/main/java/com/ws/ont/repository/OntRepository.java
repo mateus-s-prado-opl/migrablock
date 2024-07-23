@@ -1,5 +1,7 @@
 package com.ws.ont.repository;
 
+import com.ws.cvlan.enums.OperationResult;
+import com.ws.cvlan.enums.Status;
 import com.ws.ont.enums.OntExistStructureAttr;
 import com.ws.ont.enums.Operation;
 import com.ws.ont.filter.ListOntBlockFilter;
@@ -27,6 +29,7 @@ import static com.ws.cvlan.util.StringUtilSol.getLong;
 @Repository
 public class OntRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(OntRepository.class);
     private final MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
     @PersistenceContext
     private EntityManager em;
@@ -35,61 +38,66 @@ public class OntRepository {
     @Autowired
     private AuditoriaLogOntRepository auditoriaLog;
 
-    public ListOntBlockResponse getCvlanBlockList(ListOntBlockFilter filter) {
+    public ListOntBlockResponse getOntBlockList(ListOntBlockFilter filter) {
         String query = ListOntBlocksSql.getQueryListOntBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
-        ListOntBlockResponse response = new ListOntBlockResponse(resultTuples);
-        return response;
+        return new ListOntBlockResponse(resultTuples);
     }
 
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
+        logger.info("[API-MIGRABLOCK-LOG] Starting executeOntBlockRemove operation");
 
-        Logger logger = LoggerFactory.getLogger(getClass());
-
-        Long id = checkOntBlockExists(filter);
-
-        if (id == null) {
-            logger.warn("ONT block not found for the given filter: {}", filter);
-            throw new IllegalArgumentException("ONT block does not exist for the provided filter.");
+        Long idOnt = checkOntBlockExists(filter);
+        if (idOnt == null) {
+            return createRemoveOntBlockResponse(OperationResult.BLOCK_NOT_FOUND, null);
         }
 
-        // Perform the removal of the ONT block
-        //removeOntBlock(id);
-
-        // Update the observation field of the ONT (you can add the update logic here)
-
-        // Insert audit log
-        AuditoriaLogOnt auditLog = createAuditLog(filter, id);
-        auditoriaLog.insertAuditLog(auditLog);
-
-
-        return null;
-
+        try {
+            removeOntBlock(filter, idOnt);
+            return createRemoveOntBlockResponse(OperationResult.SUCCESS, idOnt);
+        } catch (Exception e) {
+            return handleRemovalException(e);
+        } finally {
+            logger.info("[API-MIGRABLOCK-LOG] Completed executeOntBlockRemove operation");
+        }
     }
 
-
-    public Long checkOntBlockExists(RemoveOntBlockFilter input) {
-        String query = CheckOntExistsSql.getQueryCheckOntExists(input, sqlParameterSource);
+    private Long checkOntBlockExists(RemoveOntBlockFilter filter) {
+        String query = CheckOntExistsSql.getQueryCheckOntExists(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
-        return getLong(resultTuples.get(0), OntExistStructureAttr.CTP_ID);
+        return resultTuples.isEmpty() ? null : getLong(resultTuples.get(0), OntExistStructureAttr.CTP_ID);
     }
 
-    public void removeOntBlock(Long id) {
+    private RemoveOntBlockResponse createRemoveOntBlockResponse(OperationResult operationResult, Long idOnt) {
+        RemoveOntBlockResponse response = new RemoveOntBlockResponse();
+        response.setOperationResult(operationResult);
 
-        RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, id);
+        if (Status.SUCCESS.equals(operationResult.getStatus())) {
+            response.setId(idOnt);
+        }
+        return response;
     }
 
+    private void removeOntBlock(RemoveOntBlockFilter filter, Long idOnt) {
+        RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, idOnt);
 
-    private AuditoriaLogOnt createAuditLog(RemoveOntBlockFilter filter, Long id) {
-        return new AuditoriaLogOnt(
+        //TODO: Criar função apra inserir observação
+
+        AuditoriaLogOnt auditLog = new AuditoriaLogOnt(
                 filter,
                 filter.getLogin(),
                 filter.getSystemOrigin(),
                 filter.getRemoveBlockReason(),
                 Operation.UNBLOCK_ONT,
-                id
+                idOnt
         );
+        auditoriaLog.insertAuditLog(auditLog);
     }
 
-
+    private RemoveOntBlockResponse handleRemovalException(Exception e) {
+        logger.error("[API-MIGRABLOCK-LOG] Error occurred during executeOntBlockRemove operation", e);
+        RemoveOntBlockResponse response = createRemoveOntBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+        response.setStackTrace(e.getMessage());
+        return response;
+    }
 }
