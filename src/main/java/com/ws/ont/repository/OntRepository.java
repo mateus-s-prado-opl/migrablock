@@ -4,17 +4,20 @@ import com.ws.cvlan.enums.OperationResult;
 import com.ws.cvlan.enums.Status;
 import com.ws.ont.enums.OntExistStructureAttr;
 import com.ws.ont.enums.Operation;
+import com.ws.ont.filter.AddOntBlockFilter;
 import com.ws.ont.filter.ListOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.AuditoriaLogOnt;
+import com.ws.ont.pojo.DTOs.OltIdsDto;
+import com.ws.ont.pojo.DTOs.PortDetailsDto;
+import com.ws.ont.pojo.response.AddOntBlockResponse;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
 import com.ws.ont.pojo.response.RemoveOntBlockResponse;
-import com.ws.ont.sql.ont.CheckOntExistsSql;
-import com.ws.ont.sql.ont.ListOntBlocksSql;
-import com.ws.ont.sql.ont.RemoveOntBlocksSql;
+import com.ws.ont.sql.ont.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -23,6 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.ws.cvlan.util.StringUtilSol.getLong;
 
@@ -43,6 +47,55 @@ public class OntRepository {
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
         return new ListOntBlockResponse(resultTuples);
     }
+
+
+    public AddOntBlockResponse executeOntBlockAdd(AddOntBlockFilter filter) {
+        OltIdsDto olt = findOlt(filter.getOltName())
+                .orElseThrow(() -> new IllegalArgumentException("OLT not found"));
+
+        PortDetailsDto port = findPort(olt.getIdOltIsp(), filter.getOntId(), filter.getPonInterface())
+                .orElseThrow(() -> new IllegalArgumentException("Port not found"));
+
+
+        if (port.getOltCtpId() == null) {
+            addOntBlock(filter, olt, port);
+        }
+
+        throw new IllegalArgumentException("ALREADY CREATED");
+    }
+
+
+    private Optional<OltIdsDto> findOlt(String oltName) {
+        try {
+            String query = new FindOltByNameSql().getFindOltByNameQuery(oltName, sqlParameterSource);
+            Map<String, Object> resultTuples = jdbcTemplate.queryForMap(query, sqlParameterSource);
+            return Optional.of(new OltIdsDto(resultTuples));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<PortDetailsDto> findPort(Long idOltIsp, Long idOnt, String interfacePon) {
+        try {
+            String query = new FindPortByOltSql().getFindPortByOltQuery(idOnt, idOltIsp, interfacePon, sqlParameterSource);
+            Map<String, Object> resultTuples = jdbcTemplate.queryForMap(query, sqlParameterSource);
+            return Optional.of(new PortDetailsDto(resultTuples));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    private void addOntBlock(AddOntBlockFilter filter, OltIdsDto olt, PortDetailsDto port) {
+        createPortDetails(port, filter.getOntId());
+
+    }
+
+    private void createPortDetails(PortDetailsDto port, Long idOnt) {
+        String query = new OltPortDetailsSql().getFindPortByOltQuery(port.getOltPtpId(), idOnt, sqlParameterSource);
+        Map<String, Object> resultTuples = jdbcTemplate.queryForMap(query, sqlParameterSource);
+
+    }
+
 
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
         logger.info("[API-MIGRABLOCK-LOG] Starting executeOntBlockRemove operation");

@@ -28,6 +28,8 @@ public class OntController {
 
     @PostMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<AddOntBlockResponse> handleOntBlockRequest(@RequestBody @Valid AddOntBlockFilter input) {
+        AddOntBlockResponse addedOntBlock = ontRepository.executeOntBlockAdd(input);
+
         return null;
     }
 
