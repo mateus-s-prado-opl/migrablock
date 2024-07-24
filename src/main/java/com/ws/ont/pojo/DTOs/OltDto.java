@@ -21,7 +21,7 @@ public class OltDto {
         this.oltPtpid = getLong(res, OltAttributesAttr.OLT_PTP_ID);
         this.oltPtpName = getString(res, OltAttributesAttr.OLT_PTP_NAME);
         this.oltTtpId = getLong(res, OltAttributesAttr.OLT_TTP_ID);
-        this.oltPtpid = getLong(res, OltAttributesAttr.OLT_CTP_ID);
+        this.oltCtpId = getLong(res, OltAttributesAttr.OLT_CTP_ID);
         this.oltCtpName = getString(res, OltAttributesAttr.OLT_CTP_NAME);
     }
 

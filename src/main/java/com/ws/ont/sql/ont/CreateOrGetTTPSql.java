@@ -1,6 +1,7 @@
 package com.ws.ont.sql.ont;
 
 import org.springframework.jdbc.core.SqlOutParameter;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 
@@ -13,20 +14,26 @@ public class CreateOrGetTTPSql {
 
     public CreateOrGetTTPSql(DataSource dataSource) {
         this.jdbcCall = new SimpleJdbcCall(dataSource)
-                .withSchemaName("NETWIN").withCatalogName("PCK_NETWORK_OSS")
-                .withProcedureName("CREATE_OR_GET_TTP")
+                .withCatalogName("PCK_NETWORK_OSS")  // Nome do pacote
+                .withProcedureName("CREATE_OR_GET_TTP")  // Nome do procedimento
+                .withoutProcedureColumnMetaDataAccess()
                 .declareParameters(
-                        new SqlOutParameter("P_ID_ENTITY_TP_OSS", Types.NUMERIC),
-                        new SqlOutParameter("OUTOUTPUTCODE", Types.INTEGER),
-                        new SqlOutParameter("OUTCODEDESCRIPTION", Types.VARCHAR)
+                        new SqlParameter("P_ID_ENTITY_TP_OSS", Types.NUMERIC), // Parâmetro de entrada
+                        new SqlParameter("P_NOME_TTP", Types.VARCHAR), // Parâmetro de entrada
+                        new SqlParameter("P_TYPE_TTP", Types.VARCHAR), // Parâmetro de entrada
+
+
+                        new SqlOutParameter("P_ID_ENTITY_TTP_OSS", Types.NUMERIC), // Parâmetro de saída
+                        new SqlOutParameter("OUTOutputCode", Types.INTEGER), // Parâmetro de saída
+                        new SqlOutParameter("OUTCodeDescription", Types.VARCHAR) // Parâmetro de saída
                 );
     }
 
-    public Map<String, Object> execute(Long idEntityTpOss, String nomeTtp) {
+    public Map<String, Object> execute(Long idEntityTpOss, String nomeTtp, String typeTtp) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("P_ID_ENTITY_TP_OSS", idEntityTpOss)
                 .addValue("P_NOME_TTP", nomeTtp)
-                .addValue("P_TYPE_TTP", "TTP.MULTI");
+                .addValue("P_TYPE_TTP", typeTtp);
 
         return jdbcCall.execute(params);
     }

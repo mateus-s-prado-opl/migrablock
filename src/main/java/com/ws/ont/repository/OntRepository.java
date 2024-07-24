@@ -8,10 +8,7 @@ import com.ws.ont.filter.AddOntBlockFilter;
 import com.ws.ont.filter.ListOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.AuditoriaLogOnt;
-import com.ws.ont.pojo.DTOs.ListOltDto;
-import com.ws.ont.pojo.DTOs.OltDto;
-import com.ws.ont.pojo.DTOs.OltIdsDto;
-import com.ws.ont.pojo.DTOs.PortDetailsDto;
+import com.ws.ont.pojo.DTOs.*;
 import com.ws.ont.pojo.response.AddOntBlockResponse;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
 import com.ws.ont.pojo.response.RemoveOntBlockResponse;
@@ -120,9 +117,15 @@ public class OntRepository {
             if (oltDto.getOltTtpId() != null) {
                 System.out.println("TTP ja existe " + oltDto.getOltTtpId());
             }
-            // AQUUUUIII COLOCA A LOGICA
 
-            createOrGetTtp(port, oltDto);
+            TtpResponseDto ttpDto = createOrGetTtp(port, oltDto);
+
+            if(ttpDto.getVTtpId() == null){
+                System.out.printf("Cannot create TTP.MULTI ptp %d ont_id %d%n", port.getOltPtpId(), filter.getOntId());
+            } else {
+                updateNsResInsTp(ttpDto.getVTtpId(), filter.getLogin());
+            }
+
         }
     }
 
@@ -142,18 +145,13 @@ public class OntRepository {
         return response;
     }
 
-
-    private void createOrGetTtp(PortDetailsDto port, OltDto oltDto) {
-        Map<String, Object> out = createOrGetTTPSql.execute(port.getOltPtpId(), oltDto.getOltPtpName());
-
-        Long vTtpId = (Long) out.get("P_ID_ENTITY_TP_OSS");
-        Integer vOutputCode = (Integer) out.get("OUTOUTPUTCODE");
-        String vOutputDescription = (String) out.get("OUTCODEDESCRIPTION");
+    private TtpResponseDto createOrGetTtp(PortDetailsDto port, OltDto oltDto) {
+        Map<String, Object> out = createOrGetTTPSql.execute(port.getOltPtpId(), oltDto.getOltPtpName(), "TTP.MULTI");
+        return new TtpResponseDto(out);
     }
 
-
-    private void updateNsResInsTp(Long vTtpId){
-
+    private void updateNsResInsTp(Long vTtpId, String userCreated){
+        String query = new UpdateNsResInsTpSql().getUpdateNsResInsTpQuery(userCreated,  vTtpId, sqlParameterSource);
     }
 
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
