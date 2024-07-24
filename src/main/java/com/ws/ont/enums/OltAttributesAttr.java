@@ -2,7 +2,7 @@ package com.ws.ont.enums;
 
 import com.ws.cvlan.SolEnum;
 
-public enum OltAttributes implements SolEnum {
+public enum OltAttributesAttr implements SolEnum {
 
     OLT_PTP_ID("OLT_PTP_ID"),
     OLT_PTP_NAME("OLT_PTP_NAME"),
@@ -12,7 +12,7 @@ public enum OltAttributes implements SolEnum {
 
     private final String fieldName;
 
-    OltAttributes(String fieldName) {
+    OltAttributesAttr(String fieldName) {
         this.fieldName = fieldName;
     }
 

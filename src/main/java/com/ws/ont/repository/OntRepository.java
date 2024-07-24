@@ -8,6 +8,8 @@ import com.ws.ont.filter.AddOntBlockFilter;
 import com.ws.ont.filter.ListOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
 import com.ws.ont.pojo.AuditoriaLogOnt;
+import com.ws.ont.pojo.DTOs.ListOltDto;
+import com.ws.ont.pojo.DTOs.OltDto;
 import com.ws.ont.pojo.DTOs.OltIdsDto;
 import com.ws.ont.pojo.DTOs.PortDetailsDto;
 import com.ws.ont.pojo.response.AddOntBlockResponse;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +45,16 @@ public class OntRepository {
     @Autowired
     private AuditoriaLogOntRepository auditoriaLog;
 
+
+    private final CreateOrGetTTPSql createOrGetTTPSql;
+
+
+    @Autowired
+    public OntRepository(DataSource dataSource) {
+        this.createOrGetTTPSql = new CreateOrGetTTPSql(dataSource);
+    }
+
+
     public ListOntBlockResponse getOntBlockList(ListOntBlockFilter filter) {
         String query = ListOntBlocksSql.getQueryListOntBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
@@ -49,21 +62,29 @@ public class OntRepository {
     }
 
 
+
     public AddOntBlockResponse executeOntBlockAdd(AddOntBlockFilter filter) {
-        OltIdsDto olt = findOlt(filter.getOltName())
-                .orElseThrow(() -> new IllegalArgumentException("OLT not found"));
-
-        PortDetailsDto port = findPort(olt.getIdOltIsp(), filter.getOntId(), filter.getPonInterface())
-                .orElseThrow(() -> new IllegalArgumentException("Port not found"));
-
-
-        if (port.getOltCtpId() == null) {
-            addOntBlock(filter, olt, port);
+        Optional<OltIdsDto> oltOptional = findOlt(filter.getOltName());
+        if (!oltOptional.isPresent()) {
+            return createAddOntBlockResponse(OperationResult.OLT_NOT_FOUND, null);
         }
+        OltIdsDto olt = oltOptional.get();
 
-        throw new IllegalArgumentException("ALREADY CREATED");
+        Optional<PortDetailsDto> portOptional = findPort(olt.getIdOltIsp(), filter.getOntId(), filter.getPonInterface());
+        if (!portOptional.isPresent()) {
+            return createAddOntBlockResponse(OperationResult.PORT_NOT_FOUND, null);
+        }
+        PortDetailsDto port = portOptional.get();
+
+//        if (port.getOltCtpId() != null) {
+//            return createAddOntBlockResponse(OperationResult.OLT_ALREADY_CREATED, null);
+//        }
+
+        addOntBlock(filter, olt, port);
+
+        return null;
+
     }
-
 
     private Optional<OltIdsDto> findOlt(String oltName) {
         try {
@@ -86,16 +107,54 @@ public class OntRepository {
     }
 
     private void addOntBlock(AddOntBlockFilter filter, OltIdsDto olt, PortDetailsDto port) {
-        createPortDetails(port, filter.getOntId());
+        ListOltDto olts = getOltList(port, filter.getOntId());
 
+        for (OltDto oltDto : olts.getOltsList()) {
+
+            if (oltDto.getOltPtpid() == null) {
+                throw new IllegalArgumentException("Cannot find ptp " + port.getOltPtpId());
+            }
+            if (oltDto.getOltCtpId() != null) {
+                throw new IllegalArgumentException("Already exists CTP.GPON to ptp " + port.getOltPtpId() + " ont_id " + filter.getOntId());
+            }
+            if (oltDto.getOltTtpId() != null) {
+                System.out.println("TTP ja existe " + oltDto.getOltTtpId());
+            }
+            // AQUUUUIII COLOCA A LOGICA
+
+            createOrGetTtp(port, oltDto);
+        }
     }
 
-    private void createPortDetails(PortDetailsDto port, Long idOnt) {
+    private ListOltDto getOltList(PortDetailsDto port, Long idOnt) {
         String query = new OltPortDetailsSql().getFindPortByOltQuery(port.getOltPtpId(), idOnt, sqlParameterSource);
-        Map<String, Object> resultTuples = jdbcTemplate.queryForMap(query, sqlParameterSource);
-
+        List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
+        return new ListOltDto(resultTuples);
     }
 
+    private AddOntBlockResponse createAddOntBlockResponse(OperationResult operationResult, Long idOnt) {
+        AddOntBlockResponse response = new AddOntBlockResponse();
+        response.setOperationResult(operationResult);
+
+        if (Status.SUCCESS.equals(operationResult.getStatus())) {
+            response.setId(idOnt);
+        }
+        return response;
+    }
+
+
+    private void createOrGetTtp(PortDetailsDto port, OltDto oltDto) {
+        Map<String, Object> out = createOrGetTTPSql.execute(port.getOltPtpId(), oltDto.getOltPtpName());
+
+        Long vTtpId = (Long) out.get("P_ID_ENTITY_TP_OSS");
+        Integer vOutputCode = (Integer) out.get("OUTOUTPUTCODE");
+        String vOutputDescription = (String) out.get("OUTCODEDESCRIPTION");
+    }
+
+
+    private void updateNsResInsTp(Long vTtpId){
+
+    }
 
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
         logger.info("[API-MIGRABLOCK-LOG] Starting executeOntBlockRemove operation");

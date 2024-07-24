@@ -28,9 +28,12 @@ public class OntController {
 
     @PostMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<AddOntBlockResponse> handleOntBlockRequest(@RequestBody @Valid AddOntBlockFilter input) {
-        AddOntBlockResponse addedOntBlock = ontRepository.executeOntBlockAdd(input);
+        AddOntBlockResponse addOntBlock = ontRepository.executeOntBlockAdd(input);
 
-        return null;
+        if (addOntBlock.hasError()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(addOntBlock);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(addOntBlock);
     }
 
     @DeleteMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
