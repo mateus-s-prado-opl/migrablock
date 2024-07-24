@@ -35,6 +35,8 @@ public class OntRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(OntRepository.class);
     private final MapSqlParameterSource sqlParameterSource = new MapSqlParameterSource();
+    private final CreateOrGetTTPSql createOrGetTTPSql;
+    private final CreateOrGetCTPSql createOrGetCtpSql;
     @PersistenceContext
     private EntityManager em;
     @Autowired
@@ -42,23 +44,17 @@ public class OntRepository {
     @Autowired
     private AuditoriaLogOntRepository auditoriaLog;
 
-
-    private final CreateOrGetTTPSql createOrGetTTPSql;
-
-
     @Autowired
     public OntRepository(DataSource dataSource) {
         this.createOrGetTTPSql = new CreateOrGetTTPSql(dataSource);
+        this.createOrGetCtpSql = new CreateOrGetCTPSql(dataSource);
     }
-
 
     public ListOntBlockResponse getOntBlockList(ListOntBlockFilter filter) {
         String query = ListOntBlocksSql.getQueryListOntBlock(filter, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
         return new ListOntBlockResponse(resultTuples);
     }
-
-
 
     public AddOntBlockResponse executeOntBlockAdd(AddOntBlockFilter filter) {
         Optional<OltIdsDto> oltOptional = findOlt(filter.getOltName());
@@ -73,9 +69,9 @@ public class OntRepository {
         }
         PortDetailsDto port = portOptional.get();
 
-//        if (port.getOltCtpId() != null) {
-//            return createAddOntBlockResponse(OperationResult.OLT_ALREADY_CREATED, null);
-//        }
+        if (port.getOltCtpId() != null) {
+            return createAddOntBlockResponse(OperationResult.OLT_ALREADY_CREATED, null);
+        }
 
         addOntBlock(filter, olt, port);
 
@@ -104,7 +100,7 @@ public class OntRepository {
     }
 
     private void addOntBlock(AddOntBlockFilter filter, OltIdsDto olt, PortDetailsDto port) {
-        ListOltDto olts = getOltList(port, filter.getOntId());
+        ListOltDto olts = getOltList(port.getOltPtpId(), filter.getOntId());
 
         for (OltDto oltDto : olts.getOltsList()) {
 
@@ -120,17 +116,18 @@ public class OntRepository {
 
             TtpResponseDto ttpDto = createOrGetTtp(port, oltDto);
 
-            if(ttpDto.getVTtpId() == null){
-                System.out.printf("Cannot create TTP.MULTI ptp %d ont_id %d%n", port.getOltPtpId(), filter.getOntId());
-            } else {
-                updateNsResInsTp(ttpDto.getVTtpId(), filter.getLogin());
+            if (ttpDto.getVTtpId() == null) {
+                throw new IllegalArgumentException("Cannot create TTP.MULTI ptp " + port.getOltPtpId() + " ont_id " + filter.getOntId());
             }
+            updateNsResInsTp(ttpDto.getVTtpId(), filter.getLogin());
 
+
+            CtpResponseDto ctpDto = createOrGetCtp(port.getOltPtpId(), filter.getOntId());
         }
     }
 
-    private ListOltDto getOltList(PortDetailsDto port, Long idOnt) {
-        String query = new OltPortDetailsSql().getFindPortByOltQuery(port.getOltPtpId(), idOnt, sqlParameterSource);
+    private ListOltDto getOltList(Long oltPtpId, Long ontId) {
+        String query = new OltPortDetailsSql().getFindPortByOltQuery(oltPtpId, ontId, sqlParameterSource);
         List<Map<String, Object>> resultTuples = jdbcTemplate.queryForList(query, sqlParameterSource);
         return new ListOltDto(resultTuples);
     }
@@ -150,8 +147,14 @@ public class OntRepository {
         return new TtpResponseDto(out);
     }
 
-    private void updateNsResInsTp(Long vTtpId, String userCreated){
-        String query = new UpdateNsResInsTpSql().getUpdateNsResInsTpQuery(userCreated,  vTtpId, sqlParameterSource);
+    private void updateNsResInsTp(Long vTtpId, String userCreated) {
+        String query = new UpdateNsResInsTpSql().getUpdateNsResInsTpQuery(userCreated, vTtpId, sqlParameterSource);
+        jdbcTemplate.update(query, sqlParameterSource);
+    }
+
+    private CtpResponseDto createOrGetCtp(Long oltPtpId, Long ontId) {
+        Map<String, Object> out = createOrGetCtpSql.execute(oltPtpId, ontId, "CTP.GPON");
+        return new CtpResponseDto(out);
     }
 
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
