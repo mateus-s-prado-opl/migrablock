@@ -23,9 +23,9 @@ public class CreateOrGetTTPSql {
                         new SqlParameter("P_TYPE_TTP", Types.VARCHAR), // Parâmetro de entrada
 
 
-                        new SqlOutParameter("P_ID_ENTITY_TTP_OSS", Types.NUMERIC), // Parâmetro de saída
-                        new SqlOutParameter("OUTOutputCode", Types.INTEGER), // Parâmetro de saída
-                        new SqlOutParameter("OUTCodeDescription", Types.VARCHAR) // Parâmetro de saída
+                        new SqlOutParameter("P_ID_ENTITY_TTP_OSS", Types.BIGINT), // Parâmetro de saída
+                        new SqlOutParameter("OUTOUTPUTCODE", Types.INTEGER), // Parâmetro de saída
+                        new SqlOutParameter("OUTCODEDESCRIPTION", Types.VARCHAR) // Parâmetro de saída
                 );
     }
 

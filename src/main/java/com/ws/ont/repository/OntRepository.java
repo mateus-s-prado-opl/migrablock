@@ -24,6 +24,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +57,7 @@ public class OntRepository {
         return new ListOntBlockResponse(resultTuples);
     }
 
+    @Transactional
     public AddOntBlockResponse executeOntBlockAdd(AddOntBlockFilter filter) {
         Optional<OltIdsDto> oltOptional = findOlt(filter.getOltName());
         if (!oltOptional.isPresent()) {
@@ -121,8 +123,9 @@ public class OntRepository {
             }
             updateNsResInsTp(ttpDto.getVTtpId(), filter.getLogin());
 
+            CtpResponseDto ctpDto = createOrGetCtp(ttpDto.getVTtpId(), filter.getOntId());
 
-            CtpResponseDto ctpDto = createOrGetCtp(port.getOltPtpId(), filter.getOntId());
+            updateNsResInsTpGpon(ctpDto.getCtpGponId(), filter.getLogin());
         }
     }
 
@@ -152,11 +155,18 @@ public class OntRepository {
         jdbcTemplate.update(query, sqlParameterSource);
     }
 
-    private CtpResponseDto createOrGetCtp(Long oltPtpId, Long ontId) {
-        Map<String, Object> out = createOrGetCtpSql.execute(oltPtpId, ontId, "CTP.GPON");
+    private CtpResponseDto createOrGetCtp(Long vTtpId, Long ontId) {
+        Map<String, Object> out = createOrGetCtpSql.execute(vTtpId, ontId, "CTP.GPON");
         return new CtpResponseDto(out);
     }
 
+
+    private void updateNsResInsTpGpon(Long ctpGponId, String userCreated) {
+        String query = new UpdateNsResInsTpGponSql().getUpdateNsResInsTpQuery(userCreated, ctpGponId, sqlParameterSource);
+        jdbcTemplate.update(query, sqlParameterSource);
+    }
+
+    @Transactional
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
         logger.info("[API-MIGRABLOCK-LOG] Starting executeOntBlockRemove operation");
 

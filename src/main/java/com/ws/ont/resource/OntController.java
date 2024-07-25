@@ -30,9 +30,9 @@ public class OntController {
     public ResponseEntity<AddOntBlockResponse> handleOntBlockRequest(@RequestBody @Valid AddOntBlockFilter input) {
         AddOntBlockResponse addOntBlock = ontRepository.executeOntBlockAdd(input);
 
-        if (addOntBlock.hasError()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(addOntBlock);
-        }
+//        if (addOntBlock.hasError()) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(addOntBlock);
+//        }
         return ResponseEntity.status(HttpStatus.OK).body(addOntBlock);
     }
 

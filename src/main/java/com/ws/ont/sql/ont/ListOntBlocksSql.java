@@ -47,7 +47,7 @@ public class ListOntBlocksSql {
                     .append(" LEFT JOIN NS_RES_INS_PIPE_TP PITP ON PITP.ID_TP = TP2.ID_TP ")
                     .append(" LEFT JOIN NS_SER_INS_SERVICE_RESOUR SR ON SR.ID_BD_RES_PIPE = PITP.ID_PIPE ")
                     .append(" LEFT JOIN NS_SER_INS_SERVICE SERPARENT ON SERPARENT.ID = SR.ID_BD_SERVICE ")
-                    .append(" INNER JOIN AUDIT_LOG_MIG_BLOCK_ONT AUDITORIA ON CTP.ID = AUDITORIA.PROCESS_ID ")
+                    .append(" LEFT JOIN AUDIT_LOG_MIG_BLOCK_ONT AUDITORIA ON CTP.ID = AUDITORIA.PROCESS_ID ")
                     .append(" WHERE SERPARENT.NAME IS NULL ");
 
     public static String getQueryListOntBlock(ListOntBlockFilter filter, MapSqlParameterSource namedParameters) {

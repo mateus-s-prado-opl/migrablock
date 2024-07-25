@@ -23,15 +23,15 @@ public class CreateOrGetCTPSql {
                         new SqlParameter("P_CTP_TYPE", Types.VARCHAR), // Parâmetro de entrada
 
 
-                        new SqlOutParameter("P_ID_ENTITY_CTP_OSS", Types.NUMERIC), // Parâmetro de saída
+                        new SqlOutParameter("P_ID_ENTITY_CTP_OSS", Types.BIGINT), // Parâmetro de saída
                         new SqlOutParameter("OUTOUTPUTCODE", Types.INTEGER), // Parâmetro de saída
                         new SqlOutParameter("OUTCODEDESCRIPTION", Types.VARCHAR) // Parâmetro de saída
                 );
     }
 
-    public Map<String, Object> execute(Long idEntityTpOss, Long ontId, String typeTtp) {
+    public Map<String, Object> execute(Long vTtpId, Long ontId, String typeTtp) {
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("P_ID_ENTITY_TP_OSS", idEntityTpOss)
+                .addValue("P_ID_ENTITY_TP_OSS", vTtpId)
                 .addValue("P_CTP_NAME", String.valueOf(ontId))
                 .addValue("P_CTP_TYPE", typeTtp);
 
