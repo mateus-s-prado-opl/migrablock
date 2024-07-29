@@ -8,7 +8,8 @@ public class CheckOntExistsSql {
     private static final StringBuilder QUERY_BASE =
             new StringBuilder()
                     .append("   SELECT ")
-                    .append("     CTP.ID AS CTP_ID ")
+                    .append("     CTP.ID AS CTP_ID, ")
+                    .append("     PTP.ID AS PTP_ID ")
                     .append(" FROM ")
                     .append("     NS_RES_INS_NODE NODE ")
                     .append(" JOIN NS_RES_CAT_NODE CATNODE ON CATNODE.ID_BD_CAT_NODE = NODE.ID_BD_CAT_NODE ")

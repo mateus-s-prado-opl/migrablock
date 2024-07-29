@@ -59,26 +59,24 @@ public class OntRepository {
 
     @Transactional
     public AddOntBlockResponse executeOntBlockAdd(AddOntBlockFilter filter) {
-        Optional<OltIdsDto> oltOptional = findOlt(filter.getOltName());
-        if (!oltOptional.isPresent()) {
-            return createAddOntBlockResponse(OperationResult.OLT_NOT_FOUND, null);
+        try {
+            OltIdsDto olt = findOlt(filter.getOltName())
+                    .orElseThrow(() -> new IllegalArgumentException("OLT_NOT_FOUND"));
+
+            PortDetailsDto port = findPort(olt.getIdOltIsp(), filter.getOntId(), filter.getPonInterface())
+                    .orElseThrow(() -> new IllegalArgumentException("PORT_NOT_FOUND"));
+
+            if (port.getOltCtpId() != null) {
+                return createAddOntBlockResponse(OperationResult.OLT_ALREADY_CREATED, null);
+            }
+
+            addOntBlock(filter, port);
+            return createAddOntBlockResponse(OperationResult.SUCCESS, filter.getOntId());
+        } catch (Exception e) {
+            return handleAddException(e);
+        } finally {
+            logger.info("[API-MIGRABLOCK-LOG] Completed executeOntBlockAdd operation");
         }
-        OltIdsDto olt = oltOptional.get();
-
-        Optional<PortDetailsDto> portOptional = findPort(olt.getIdOltIsp(), filter.getOntId(), filter.getPonInterface());
-        if (!portOptional.isPresent()) {
-            return createAddOntBlockResponse(OperationResult.PORT_NOT_FOUND, null);
-        }
-        PortDetailsDto port = portOptional.get();
-
-        if (port.getOltCtpId() != null) {
-            return createAddOntBlockResponse(OperationResult.OLT_ALREADY_CREATED, null);
-        }
-
-        addOntBlock(filter, olt, port);
-
-        return null;
-
     }
 
     private Optional<OltIdsDto> findOlt(String oltName) {
@@ -101,33 +99,41 @@ public class OntRepository {
         }
     }
 
-    private void addOntBlock(AddOntBlockFilter filter, OltIdsDto olt, PortDetailsDto port) {
+    private void addOntBlock(AddOntBlockFilter filter, PortDetailsDto port) {
         ListOltDto olts = getOltList(port.getOltPtpId(), filter.getOntId());
+        CtpResponseDto lastCtpDto = null;
 
         for (OltDto oltDto : olts.getOltsList()) {
+            lastCtpDto = processOltDto(oltDto, port, filter);
+        }
 
-            if (oltDto.getOltPtpid() == null) {
-                throw new IllegalArgumentException("Cannot find ptp " + port.getOltPtpId());
-            }
-            if (oltDto.getOltCtpId() != null) {
-                throw new IllegalArgumentException("Already exists CTP.GPON to ptp " + port.getOltPtpId() + " ont_id " + filter.getOntId());
-            }
-            if (oltDto.getOltTtpId() != null) {
-                System.out.println("TTP ja existe " + oltDto.getOltTtpId());
-            }
+        //TODO: Criar função apra inserir observação
 
-            TtpResponseDto ttpDto = createOrGetTtp(port, oltDto);
-
-            if (ttpDto.getVTtpId() == null) {
-                throw new IllegalArgumentException("Cannot create TTP.MULTI ptp " + port.getOltPtpId() + " ont_id " + filter.getOntId());
-            }
-            updateNsResInsTp(ttpDto.getVTtpId(), filter.getLogin());
-
-            CtpResponseDto ctpDto = createOrGetCtp(ttpDto.getVTtpId(), filter.getOntId());
-
-            updateNsResInsTpGpon(ctpDto.getCtpGponId(), filter.getLogin());
+        if (lastCtpDto != null) {
+            insertAuditLog(filter, lastCtpDto);
         }
     }
+
+    private CtpResponseDto processOltDto(OltDto oltDto, PortDetailsDto port, AddOntBlockFilter filter) {
+        validateOltDto(oltDto, port.getOltPtpId(), filter.getOntId());
+        TtpResponseDto ttpDto = getOrCreateTtp(oltDto, port, filter);
+        CtpResponseDto ctpDto = createOrGetCtp(ttpDto.getVTtpId(), filter.getOntId());
+        updateNsResInsTpGpon(ctpDto.getCtpGponId(), filter.getLogin());
+        return ctpDto;
+    }
+
+    private void insertAuditLog(AddOntBlockFilter filter, CtpResponseDto ctpDto) {
+        AuditoriaLogOnt auditLog = new AuditoriaLogOnt(
+                filter,
+                filter.getLogin(),
+                filter.getSystemOrigin(),
+                filter.getBlockReason(),
+                Operation.BLOCK_ONT,
+                ctpDto.getCtpGponId()
+        );
+        auditoriaLog.insertAuditLog(auditLog);
+    }
+
 
     private ListOltDto getOltList(Long oltPtpId, Long ontId) {
         String query = new OltPortDetailsSql().getFindPortByOltQuery(oltPtpId, ontId, sqlParameterSource);
@@ -135,14 +141,27 @@ public class OntRepository {
         return new ListOltDto(resultTuples);
     }
 
-    private AddOntBlockResponse createAddOntBlockResponse(OperationResult operationResult, Long idOnt) {
-        AddOntBlockResponse response = new AddOntBlockResponse();
-        response.setOperationResult(operationResult);
-
-        if (Status.SUCCESS.equals(operationResult.getStatus())) {
-            response.setId(idOnt);
+    private void validateOltDto(OltDto oltDto, Long oltPtpId, Long ontId) {
+        if (oltDto.getOltPtpid() == null) {
+            throw new IllegalArgumentException("Cannot find ptp " + oltPtpId);
         }
-        return response;
+        if (oltDto.getOltCtpId() != null) {
+            throw new IllegalArgumentException("Already exists CTP.GPON to ptp " + oltPtpId + " ont_id " + ontId);
+        }
+    }
+
+    private TtpResponseDto getOrCreateTtp(OltDto oltDto, PortDetailsDto port, AddOntBlockFilter filter) {
+        if (oltDto.getOltTtpId() != null) {
+            return new TtpResponseDto(oltDto.getOltTtpId());
+        }
+
+        TtpResponseDto ttpDto = createOrGetTtp(port, oltDto);
+        if (ttpDto.getVTtpId() == null) {
+            throw new IllegalArgumentException("Cannot create TTP.MULTI ptp " + port.getOltPtpId() + " ont_id " + filter.getOntId());
+        }
+
+        updateNsResInsTp(ttpDto.getVTtpId(), filter.getLogin());
+        return ttpDto;
     }
 
     private TtpResponseDto createOrGetTtp(PortDetailsDto port, OltDto oltDto) {
@@ -160,24 +179,48 @@ public class OntRepository {
         return new CtpResponseDto(out);
     }
 
-
     private void updateNsResInsTpGpon(Long ctpGponId, String userCreated) {
         String query = new UpdateNsResInsTpGponSql().getUpdateNsResInsTpQuery(userCreated, ctpGponId, sqlParameterSource);
         jdbcTemplate.update(query, sqlParameterSource);
     }
 
+    private AddOntBlockResponse createAddOntBlockResponse(OperationResult operationResult, Long idOnt) {
+        AddOntBlockResponse response = new AddOntBlockResponse();
+        response.setOperationResult(operationResult);
+
+        if (OperationResult.SUCCESS.equals(operationResult)) {
+            response.setId(idOnt);
+        }
+        return response;
+    }
+
+    private AddOntBlockResponse handleAddException(Exception e) {
+        logger.error("[API-MIGRABLOCK-LOG] Error occurred during executeOntBlockRemove operation", e);
+        AddOntBlockResponse response = createAddOntBlockResponse(OperationResult.UNKNOWN_ERROR, null);
+        response.setStackTrace(e.getMessage());
+        return response;
+    }
+
+
+    //TODO: verificar erro de FK
+    //    uncategorized SQLException for SQL [DELETE FROM NS_RES_INS_TP WHERE ID = ?]; SQL state [72000]; error code [20963]; ORA-20963: ORA-02292: integrity constraint (NETWIN_TST.NS_R_I_TPTP_PARENT_FK$SB) violated - child record found
+    //    ORA-06512: em "NETWIN_TST.NS_RES_INS_TP_TRGD", line 139
+    //    ORA-04088: erro durante a execução do gatilho 'NETWIN_TST.NS_RES_INS_TP_TRGD'
+    //    ; nested exception is java.sql.SQLException: ORA-20963: ORA-02292: integrity constraint (NETWIN_TST.NS_R_I_TPTP_PARENT_FK$SB) violated - child record found
+    //    ORA-06512: em "NETWIN_TST.NS_RES_INS_TP_TRGD", line 139
+    //    ORA-04088: erro durante a execução do gatilho 'NETWIN_TST.NS_RES_INS_TP_TRGD'
     @Transactional
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
         logger.info("[API-MIGRABLOCK-LOG] Starting executeOntBlockRemove operation");
 
-        Long idOnt = checkOntBlockExists(filter);
-        if (idOnt == null) {
+        Long ctpId = checkOntBlockExists(filter);
+        if (ctpId == null) {
             return createRemoveOntBlockResponse(OperationResult.BLOCK_NOT_FOUND, null);
         }
 
         try {
-            removeOntBlock(filter, idOnt);
-            return createRemoveOntBlockResponse(OperationResult.SUCCESS, idOnt);
+            removeOntBlock(filter, ctpId);
+            return createRemoveOntBlockResponse(OperationResult.SUCCESS, ctpId);
         } catch (Exception e) {
             return handleRemovalException(e);
         } finally {
@@ -201,8 +244,8 @@ public class OntRepository {
         return response;
     }
 
-    private void removeOntBlock(RemoveOntBlockFilter filter, Long idOnt) {
-        RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, idOnt);
+    private void removeOntBlock(RemoveOntBlockFilter filter, Long ctpId) {
+        RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, ctpId);
 
         //TODO: Criar função apra inserir observação
 
@@ -212,7 +255,7 @@ public class OntRepository {
                 filter.getSystemOrigin(),
                 filter.getRemoveBlockReason(),
                 Operation.UNBLOCK_ONT,
-                idOnt
+                ctpId
         );
         auditoriaLog.insertAuditLog(auditLog);
     }

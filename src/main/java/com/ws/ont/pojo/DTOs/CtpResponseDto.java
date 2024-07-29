@@ -13,7 +13,7 @@ public class CtpResponseDto {
 
     public CtpResponseDto(Map<String, Object> out) {
         this.ctpGponId = (Long) out.get("P_ID_ENTITY_CTP_OSS");
-        this.vOutputCode = (Integer) out.get("OUTOUTPUTCODE");         //TODO: Verificar output code 0
+        this.vOutputCode = (Integer) out.get("OUTOUTPUTCODE");
         this.vOutputDescription = (String) out.get("OUTCODEDESCRIPTION");
     }
 }

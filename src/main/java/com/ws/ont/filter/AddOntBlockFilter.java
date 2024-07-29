@@ -1,6 +1,6 @@
 package com.ws.ont.filter;
 
-import com.ws.cvlan.filter.validation.BaseCvlanFilter;
+import com.ws.ont.filter.validation.BaseOntFilter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AddOntBlockFilter extends BaseCvlanFilter {
+public class AddOntBlockFilter extends BaseOntFilter {
 
     @Size(max = 100, message = "System must be less than or equal to 100 characters")
     @NotEmpty(message = "System origin is mandatory")
