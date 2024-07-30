@@ -11,7 +11,7 @@ public class InsertAuditoriaLogSql {
                     "LOCALITY_ABBREVIATION, LOCALITY_NAME, OLT_NAME, OLT_UID, " +
                     "PON_INTERFACE, ONT_ID, OPERATION, SYSTEM, COMMENTS, PROCESS_ID" +
                     ") VALUES (" +
-                    "SEQ_AUDIT_LOG_MIG_BLOCK_CVLAN.nextval, :userCreated, :dateCreated, :stateAbbreviation, :stateName, " +
+                    "SEQ_AUDIT_LOG_MIG_BLOCK_ONT.nextval, :userCreated, :dateCreated, :stateAbbreviation, :stateName, " +
                     ":localityAbbreviation, :localityName, :oltName, :oltUid, " +
                     ":ponInterface, :ontId, :operation, :system, :comments, :processId )";
 

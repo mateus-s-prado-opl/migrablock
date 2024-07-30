@@ -8,6 +8,8 @@ import com.ws.ont.pojo.response.AddOntBlockResponse;
 import com.ws.ont.pojo.response.ListOntBlockResponse;
 import com.ws.ont.pojo.response.RemoveOntBlockResponse;
 import com.ws.ont.repository.OntRepository;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+@Api(value = "OntController", tags = {"ONT Operations"})
 @RestController
 @RequestMapping("/api/ont")
 public class OntController {
@@ -26,6 +29,7 @@ public class OntController {
     @Autowired
     private OntRepository ontRepository;
 
+    @ApiOperation(value = "Add ONT Block")
     @PostMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<AddOntBlockResponse> handleOntBlockRequest(@RequestBody @Valid AddOntBlockFilter input) {
         AddOntBlockResponse addOntBlock = ontRepository.executeOntBlockAdd(input);
@@ -36,6 +40,7 @@ public class OntController {
         return ResponseEntity.status(HttpStatus.OK).body(addOntBlock);
     }
 
+    @ApiOperation(value = "Remove ONT Block")
     @DeleteMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<RemoveOntBlockResponse> handleOntBlockRemovalRequest(@RequestBody @Valid RemoveOntBlockFilter input) {
         logger.info("\n\n\n[API-MIGRABLOCK-LOG] Received request to remove ONT block");
@@ -55,6 +60,7 @@ public class OntController {
         return ResponseEntity.status(HttpStatus.OK).body(removedOntBlock);
     }
 
+    @ApiOperation(value = "List ONT Blocks")
     @GetMapping("/listaBloqueios")
     public ResponseEntity<ListOntBlockResponse> getOntBlockList(@RequestBody @Valid ListOntBlockFilter input) {
         ListOntBlockResponse ontBlocks = ontRepository.getOntBlockList(input);

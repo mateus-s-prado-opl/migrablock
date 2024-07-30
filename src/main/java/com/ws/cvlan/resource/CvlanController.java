@@ -7,6 +7,7 @@ import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.ListCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.repository.CvlanRepository;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ public class CvlanController {
     @Autowired
     private CvlanRepository cvlanRepository;
 
+    @ApiOperation(value = "Add CVLAN Block")
     @PostMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<AddCvlanBlockResponse> handleCvlanBlockRequest(@RequestBody @Valid AddCvlanBlockFilter input) {
         logger.info("\n\n\n[API-MIGRABLOCK-LOG] Received request to add CVLAN block: {}", input);
@@ -44,6 +46,7 @@ public class CvlanController {
         return ResponseEntity.status(HttpStatus.CREATED).body(addCvlanBlockResponse);
     }
 
+    @ApiOperation(value = "Remove CVLAN Block")
     @DeleteMapping(path = "/bloqueio", produces = "application/json", consumes = "application/json")
     public ResponseEntity<RemoveCvlanBlockResponse> handleCvlanBlockRemovalRequest(@RequestBody @Valid RemoveCvlanBlockFilter input) {
         logger.info("\n\n\n[API-MIGRABLOCK-LOG] Received request to remove CVLAN block: {}", input);
@@ -63,6 +66,7 @@ public class CvlanController {
         return ResponseEntity.status(HttpStatus.OK).body(removedCvlanBlock);
     }
 
+    @ApiOperation(value = "List CVLAN Blocks")
     @GetMapping("/listaBloqueios")
     public ResponseEntity<ListCvlanBlockResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
         logger.info("\n\n\n[API-MIGRABLOCK-LOG] Received request to list CVLAN blocks with filter: {}", input);

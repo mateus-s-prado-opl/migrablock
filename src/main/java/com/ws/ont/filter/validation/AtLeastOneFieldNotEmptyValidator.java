@@ -15,11 +15,11 @@ public class AtLeastOneFieldNotEmptyValidator implements ConstraintValidator<AtL
     }
 
     @Override
-    public boolean isValid(BaseOntFilter baseCvlanFilter, ConstraintValidatorContext context) {
+    public boolean isValid(BaseOntFilter baseOntFilter, ConstraintValidatorContext context) {
         boolean isValid = false;
         for (String fieldName : fields) {
             try {
-                String fieldValue = (String) new BeanWrapperImpl(baseCvlanFilter).getPropertyValue(fieldName);
+                String fieldValue = (String) new BeanWrapperImpl(baseOntFilter).getPropertyValue(fieldName);
                 if (fieldValue != null && !fieldValue.trim().isEmpty()) {
                     isValid = true;
                     break;
