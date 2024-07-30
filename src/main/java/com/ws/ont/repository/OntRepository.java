@@ -107,9 +107,8 @@ public class OntRepository {
             lastCtpDto = processOltDto(oltDto, port, filter);
         }
 
-        //TODO: Criar função apra inserir observação
-
         if (lastCtpDto != null) {
+            updateAdditionalInformation(lastCtpDto.getCtpGponId(), filter.getBlockReason());
             insertAuditLog(filter, lastCtpDto);
         }
     }
@@ -120,6 +119,11 @@ public class OntRepository {
         CtpResponseDto ctpDto = createOrGetCtp(ttpDto.getVTtpId(), filter.getOntId());
         updateNsResInsTpGpon(ctpDto.getCtpGponId(), filter.getLogin());
         return ctpDto;
+    }
+
+    private void updateAdditionalInformation(Long ctpGponId, String blockReason) {
+        String query = UpdateObservationOntSql.getUpdateObservationQuery(ctpGponId, blockReason, sqlParameterSource);
+        jdbcTemplate.update(query, sqlParameterSource);
     }
 
     private void insertAuditLog(AddOntBlockFilter filter, CtpResponseDto ctpDto) {
@@ -133,7 +137,6 @@ public class OntRepository {
         );
         auditoriaLog.insertAuditLog(auditLog);
     }
-
 
     private ListOltDto getOltList(Long oltPtpId, Long ontId) {
         String query = new OltPortDetailsSql().getFindPortByOltQuery(oltPtpId, ontId, sqlParameterSource);
@@ -212,13 +215,12 @@ public class OntRepository {
     @Transactional
     public RemoveOntBlockResponse executeOntBlockRemove(RemoveOntBlockFilter filter) {
         logger.info("[API-MIGRABLOCK-LOG] Starting executeOntBlockRemove operation");
-
-        Long ctpId = checkOntBlockExists(filter);
-        if (ctpId == null) {
-            return createRemoveOntBlockResponse(OperationResult.BLOCK_NOT_FOUND, null);
-        }
-
         try {
+            Long ctpId = checkOntBlockExists(filter);
+            if (ctpId == null) {
+                return createRemoveOntBlockResponse(OperationResult.BLOCK_NOT_FOUND, null);
+            }
+
             removeOntBlock(filter, ctpId);
             return createRemoveOntBlockResponse(OperationResult.SUCCESS, ctpId);
         } catch (Exception e) {
@@ -247,7 +249,7 @@ public class OntRepository {
     private void removeOntBlock(RemoveOntBlockFilter filter, Long ctpId) {
         RemoveOntBlocksSql.executeRemoveOntBlock(jdbcTemplate, ctpId);
 
-        //TODO: Criar função apra inserir observação
+        //TODO: Verificar se é realmente necessario inserir, observação quando temos uma remoção
 
         AuditoriaLogOnt auditLog = new AuditoriaLogOnt(
                 filter,
