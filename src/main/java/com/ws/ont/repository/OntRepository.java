@@ -1,9 +1,9 @@
 package com.ws.ont.repository;
 
-import com.ws.cvlan.enums.OperationResult;
-import com.ws.cvlan.enums.Status;
+import com.ws.utils.enums.OperationResult;
+import com.ws.utils.enums.Status;
 import com.ws.ont.enums.OntExistStructureAttr;
-import com.ws.ont.enums.Operation;
+import com.ws.utils.enums.Operation;
 import com.ws.ont.filter.AddOntBlockFilter;
 import com.ws.ont.filter.ListOntBlockFilter;
 import com.ws.ont.filter.RemoveOntBlockFilter;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.ws.cvlan.util.StringUtilSol.getLong;
+import static com.ws.utils.StringUtilSol.getLong;
 
 @Repository
 public class OntRepository {

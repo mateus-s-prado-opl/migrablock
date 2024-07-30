@@ -1,4 +1,4 @@
-package com.ws.cvlan.enums;
+package com.ws.utils.enums;
 
 public enum OperationResult {
     SUCCESS("Operation successful", Status.SUCCESS),

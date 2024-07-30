@@ -1,6 +1,6 @@
 package com.ws.ont.pojo;
 
-import com.ws.ont.enums.Operation;
+import com.ws.utils.enums.Operation;
 import com.ws.ont.filter.validation.BaseOntFilter;
 import lombok.Data;
 

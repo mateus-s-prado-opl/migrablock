@@ -1,7 +1,9 @@
-package com.ws.ont.enums;
+package com.ws.utils.enums;
 
 public enum Operation {
 
+    BLOCK_CVLAN("bloqueio cvlan"),
+    UNBLOCK_CVLAN("desbloqueio cvlan"),
     BLOCK_ONT("bloqueio ont"),
     UNBLOCK_ONT("desbloqueio ont");
 

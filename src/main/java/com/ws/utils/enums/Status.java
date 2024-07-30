@@ -1,10 +1,10 @@
-package com.ws.cvlan.enums;
+package com.ws.utils.enums;
 
 public enum Status {
     ERROR(0L),
     SUCCESS(1L);
 
-    private long value;
+    private final long value;
 
     Status(long l) {
         value = l;

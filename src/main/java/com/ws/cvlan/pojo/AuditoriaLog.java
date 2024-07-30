@@ -1,6 +1,6 @@
 package com.ws.cvlan.pojo;
 
-import com.ws.cvlan.enums.Operation;
+import com.ws.utils.enums.Operation;
 import lombok.Data;
 
 import javax.persistence.GeneratedValue;

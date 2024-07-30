@@ -6,8 +6,8 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
-import static com.ws.cvlan.util.StringUtilSol.getLong;
-import static com.ws.cvlan.util.StringUtilSol.getString;
+import static com.ws.utils.StringUtilSol.getLong;
+import static com.ws.utils.StringUtilSol.getString;
 
 @Data
 public class CreateMessageCheckCvlanBlockExistsDTO {

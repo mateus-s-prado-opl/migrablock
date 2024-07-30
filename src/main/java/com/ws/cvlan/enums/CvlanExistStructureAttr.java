@@ -1,6 +1,6 @@
 package com.ws.cvlan.enums;
 
-import com.ws.cvlan.SolEnum;
+import com.ws.utils.SolEnum;
 
 public enum CvlanExistStructureAttr implements SolEnum {
 

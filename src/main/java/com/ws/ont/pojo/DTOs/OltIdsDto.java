@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.Map;
 
-import static com.ws.cvlan.util.StringUtilSol.getLong;
+import static com.ws.utils.StringUtilSol.getLong;
 
 @Data
 public class OltIdsDto {

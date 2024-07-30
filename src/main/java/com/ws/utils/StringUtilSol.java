@@ -1,6 +1,4 @@
-package com.ws.cvlan.util;
-
-import com.ws.cvlan.SolEnum;
+package com.ws.utils;
 
 import java.util.Map;
 
@@ -20,15 +18,6 @@ public class StringUtilSol {
         Long value = null;
         if (tuple.get(attrName.getFieldName()) != null)
             value = Long.valueOf(objValue.toString());
-
-        return value;
-    }
-
-    public static Boolean getBoolean(Map<String, Object> tuple, SolEnum attrName) {
-        Object objValue = tuple.get(attrName.getFieldName());
-        Boolean value = null;
-        if (tuple.get(attrName.getFieldName()) != null)
-            value = Boolean.valueOf(objValue.toString());
 
         return value;
     }

@@ -1,4 +1,4 @@
-package com.ws.cvlan;
+package com.ws.utils;
 
 
 public interface SolEnum {

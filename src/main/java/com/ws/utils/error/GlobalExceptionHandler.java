@@ -1,4 +1,4 @@
-package com.ws.cvlan.error;
+package com.ws.utils.error;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

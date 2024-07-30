@@ -11,6 +11,9 @@ import com.ws.cvlan.pojo.response.AddCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.ListCvlanBlockResponse;
 import com.ws.cvlan.pojo.response.RemoveCvlanBlockResponse;
 import com.ws.cvlan.sql.CVLAN.*;
+import com.ws.utils.enums.Operation;
+import com.ws.utils.enums.OperationResult;
+import com.ws.utils.enums.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.ws.cvlan.util.StringUtilSol.getLong;
-import static com.ws.cvlan.util.StringUtilSol.getString;
+import static com.ws.utils.StringUtilSol.getLong;
+import static com.ws.utils.StringUtilSol.getString;
 
 @Repository
 public class CvlanRepository {

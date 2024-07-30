@@ -1,6 +1,6 @@
 package com.ws.ont.enums;
 
-import com.ws.cvlan.SolEnum;
+import com.ws.utils.SolEnum;
 
 public enum OltAttributesAttr implements SolEnum {
 

@@ -1,8 +1,8 @@
 package com.ws.ont.pojo.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.ws.cvlan.enums.OperationResult;
-import com.ws.cvlan.enums.Status;
+import com.ws.utils.enums.OperationResult;
+import com.ws.utils.enums.Status;
 import lombok.Data;
 
 @Data

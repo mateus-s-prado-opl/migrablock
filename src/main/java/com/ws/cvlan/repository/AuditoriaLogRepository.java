@@ -1,8 +1,8 @@
 package com.ws.cvlan.repository;
 
-import com.ws.cvlan.enums.Operation;
 import com.ws.cvlan.pojo.AuditoriaLog;
 import com.ws.cvlan.sql.auditoria.InsertAuditoriaLogSql;
+import com.ws.utils.enums.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
