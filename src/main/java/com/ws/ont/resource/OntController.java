@@ -61,11 +61,11 @@ public class OntController {
     }
 
     @ApiOperation(value = "List ONT Blocks")
-    @GetMapping("/listaBloqueios")
+    @PostMapping("/listaBloqueios")
     public ResponseEntity<ListOntBlockResponse> getOntBlockList(@RequestBody @Valid ListOntBlockFilter input) {
         ListOntBlockResponse ontBlocks = ontRepository.getOntBlockList(input);
         if (ontBlocks.getOntBlockList().isEmpty()) {
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ListOntBlockResponse(null));
         }
         return ResponseEntity.ok(ontBlocks);
     }

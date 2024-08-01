@@ -67,7 +67,7 @@ public class CvlanController {
     }
 
     @ApiOperation(value = "List CVLAN Blocks")
-    @GetMapping("/listaBloqueios")
+    @PostMapping("/listaBloqueios")
     public ResponseEntity<ListCvlanBlockResponse> getCvlanBlockList(@RequestBody @Valid ListCvlanBlockFilter input) {
         logger.info("\n\n\n[API-MIGRABLOCK-LOG] Received request to list CVLAN blocks with filter: {}", input);
         long startTime = System.currentTimeMillis();

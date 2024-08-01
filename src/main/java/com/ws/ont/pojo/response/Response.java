@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public abstract class Response<T> {
+public abstract class Response {
 
     @ApiModelProperty(value = "ID of the response", example = "12345")
     Long id;
@@ -21,11 +21,7 @@ public abstract class Response<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @ApiModelProperty(value = "Stack trace in case of error", example = "java.lang.NullPointerException: ...")
     String stackTrace;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    @ApiModelProperty(value = "Response data")
-    T data;
-
+    
     public boolean hasError() {
         return status == Status.ERROR;
     }
